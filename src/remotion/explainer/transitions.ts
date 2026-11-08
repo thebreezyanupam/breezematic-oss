@@ -81,13 +81,14 @@ export function moveAt(
       case 'open':
         // The first frame is already the picture: a short punch-in from a
         // lifted exposure, never a fade up from black.
-        move.scale *= 1 + 0.12 * enter;
-        move.brightness *= 1 + 0.22 * enter;
+        move.scale *= 1 + 0.05 * enter;
+        move.brightness *= 1 + 0.18 * enter;
         move.blur += 2 * enter;
         break;
+      // Kept small: at a third bigger the cut read as the frame lurching.
       case 'zoom':
-        move.scale *= 1 + 0.32 * enter;
-        move.blur += 16 * enter;
+        move.scale *= 1 + 0.12 * enter;
+        move.blur += 10 * enter;
         move.brightness *= 1 + 0.25 * enter;
         break;
       case 'whip':
@@ -96,8 +97,8 @@ export function moveAt(
         move.scale *= 1 + 0.06 * enter;
         break;
       case 'spin':
-        move.rotate += direction * 9 * enter;
-        move.scale *= 1 + 0.4 * enter;
+        move.rotate += direction * 4 * enter;
+        move.scale *= 1 + 0.12 * enter;
         move.blur += 12 * enter;
         break;
       case 'slide':
@@ -120,8 +121,8 @@ export function moveAt(
     if (exit > 0) {
       switch (outOf) {
         case 'zoom':
-          move.scale *= 1 + 0.45 * exit;
-          move.blur += 14 * exit;
+          move.scale *= 1 + 0.14 * exit;
+          move.blur += 10 * exit;
           break;
         case 'whip':
           // Leaves the way the next shot's pan carries it.
@@ -129,8 +130,8 @@ export function moveAt(
           move.blur += 22 * exit;
           break;
         case 'spin':
-          move.rotate += -outDirection * 9 * exit;
-          move.scale *= 1 + 0.35 * exit;
+          move.rotate += -outDirection * 4 * exit;
+          move.scale *= 1 + 0.12 * exit;
           move.blur += 10 * exit;
           break;
         case 'slide':

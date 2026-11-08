@@ -83,3 +83,48 @@ export const KICKER: React.CSSProperties = {
 
 /** Legible over anything: a soft dark halo rather than an outline. */
 export const TEXT_SHADOW = '0 4px 18px rgba(0,0,0,0.55), 0 2px 4px rgba(0,0,0,0.5)';
+
+
+/* ---------------------------------------------------------------- fitting */
+
+let measurer: CanvasRenderingContext2D | null = null;
+
+/** How wide a piece of text is set, in px, in a loaded font. */
+export function textWidth(text: string, size: number, family: string, weight: number, trackingEm = 0): number {
+  if (measurer === null) measurer = document.createElement('canvas').getContext('2d');
+  if (measurer === null) return text.length * size * 0.6;
+  measurer.font = `${weight} ${size}px ${family}`;
+  return measurer.measureText(text).width + trackingEm * size * Math.max(0, text.length - 1);
+}
+
+/**
+ * The largest size, up to `max`, at which text fits `width`.
+ *
+ * Sizes used to be picked by counting characters, which cannot know that a
+ * "W" is three "i"s wide or that one long word cannot wrap -- and a word
+ * that does not fit is cut by the card around it ("Cocktail Party Effe").
+ * This measures. With `wrap`, lines may break between words, so only the
+ * longest word has to fit; without it, the whole text is one line.
+ */
+export function fitSize(
+  text: string,
+  options: { max: number; min?: number; width: number; family: string; weight: number; trackingEm?: number; wrap?: boolean },
+): number {
+  const pieces = options.wrap === false ? [text] : text.split(/\s+/).filter((w) => w !== '');
+  const probe = 100;
+  const widest = Math.max(1, ...pieces.map((piece) => textWidth(piece, probe, options.family, options.weight, options.trackingEm ?? 0)));
+  // A hair under the exact fit: sub-pixel rounding and the underline's padding.
+  const fitted = Math.floor((options.width / widest) * probe * 0.97);
+  return Math.max(options.min ?? 28, Math.min(options.max, fitted));
+}
+
+/** Text broken into lines that each fit `width` at `size`, greedily, between words. */
+export function wrapLines(text: string, size: number, width: number, family: string, weight: number, trackingEm = 0): string[] {
+  const lines: string[] = [];
+  for (const word of text.split(/\s+/).filter((w) => w !== '')) {
+    const last = lines[lines.length - 1];
+    if (last !== undefined && textWidth(`${last} ${word}`, size, family, weight, trackingEm) <= width) lines[lines.length - 1] = `${last} ${word}`;
+    else lines.push(word);
+  }
+  return lines;
+}

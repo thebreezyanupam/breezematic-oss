@@ -1,3 +1,4 @@
+import React from 'react';
 import { Easing, interpolate, useCurrentFrame } from 'remotion';
 import { Circle, Underline } from '@remotion/rough-notation';
 import {
@@ -9,7 +10,7 @@ import {
   type TimedWord,
 } from '../../explainer.js';
 import { SERIF_FONT_FAMILY } from '../font.js';
-import { CARD, EX, KICKER, TEXT_SHADOW, easeOut, msToFrame, pop, ramp } from './theme.js';
+import { CARD, EX, KICKER, TEXT_SHADOW, easeOut, msToFrame, pop, ramp, fitSize, wrapLines } from './theme.js';
 import { MapGraphic, canMap } from './MapGraphic.js';
 
 /**
@@ -151,7 +152,9 @@ export const Headline: React.FC<GraphicProps & { kicker: string }> = ({
   const leave = useLeave(durationInFrames);
   const nowMs = beatStartMs + (frame / EX.fps) * 1000;
   const chars = words.reduce((sum, word) => sum + word.text.length + 1, 0);
-  const size = chars <= 22 ? 134 : chars <= 36 ? 116 : chars <= 54 ? 100 : chars <= 72 ? 88 : 76;
+  const wanted = chars <= 22 ? 134 : chars <= 36 ? 116 : chars <= 54 ? 100 : chars <= 72 ? 88 : 76;
+  // The longest word has to fit on a line of its own, or the band cuts it.
+  const size = fitSize(words.map((word) => word.text).join(' '), { max: wanted, width: 880, family: fontFamily, weight: 900, trackingEm: -0.03 });
   const emphasised = emphasis?.toLowerCase().replace(/[^\p{L}\p{N}]/gu, '') ?? null;
 
   return (
@@ -241,7 +244,8 @@ export const Stat: React.FC<GraphicProps> = ({ graphic, words, beatStartMs, beat
   const final = `${graphic.prefix}${formatValue(value, decimalsOf(value))}`;
   const inlineSuffix = graphic.suffix.length > 0 && graphic.suffix.length <= 3;
   const length = final.length + (inlineSuffix ? graphic.suffix.length : 0);
-  const size = length <= 4 ? 270 : length <= 6 ? 220 : length <= 8 ? 176 : 140;
+  const wantedSize = length <= 4 ? 270 : length <= 6 ? 220 : length <= 8 ? 176 : 140;
+  const size = fitSize(final + (inlineSuffix ? graphic.suffix : ''), { max: wantedSize, width: 780, family: fontFamily, weight: 900, trackingEm: -0.05, wrap: false });
   const enter = pop(frame, 0, { damping: 14, stiffness: 200 });
   const ring = ramp(frame, landFrame, 16);
 
@@ -360,7 +364,7 @@ export const Compare: React.FC<GraphicProps> = ({ graphic, words, beatStartMs, b
               </div>
               {item.value !== null ? (
                 <div>
-                  <div style={{ fontFamily, fontWeight: 900, fontSize: 104, lineHeight: 1, color: colours[index], letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', marginTop: 24 }}>
+                  <div style={{ fontFamily, fontWeight: 900, fontSize: fitSize(`${graphic.prefix}${formatValue(item.value, decimalsOf(item.value))}${graphic.suffix.length <= 3 ? graphic.suffix : ''}`, { max: 104, width: 366, family: fontFamily, weight: 900, trackingEm: -0.04, wrap: false }), lineHeight: 1, color: colours[index], letterSpacing: '-0.04em', fontVariantNumeric: 'tabular-nums', marginTop: 24 }}>
                     {graphic.prefix}
                     {counted(item.value, counting)}
                     {graphic.suffix.length <= 3 ? graphic.suffix : ''}
@@ -612,7 +616,7 @@ export const List: React.FC<GraphicProps> = ({ graphic, words, beatStartMs, beat
     <Band leave={leave}>
       {graphic.title !== '' ? (
         <div style={{ marginBottom: 44 }}>
-          <div style={{ fontFamily, fontWeight: 900, fontSize: 104, lineHeight: 1, color: EX.ink, letterSpacing: '-0.035em', textShadow: TEXT_SHADOW, opacity: ramp(frame, 0, 8) }}>
+          <div style={{ fontFamily, fontWeight: 900, fontSize: fitSize(graphic.title, { max: 104, width: 880, family: fontFamily, weight: 900, trackingEm: -0.035 }), lineHeight: 1, color: EX.ink, letterSpacing: '-0.035em', textShadow: TEXT_SHADOW, opacity: ramp(frame, 0, 8) }}>
             {graphic.title}
           </div>
           <div style={{ width: `${underline * 46}%`, height: 12, borderRadius: 6, background: EX.accent, marginTop: 18 }} />
@@ -688,6 +692,13 @@ export const Term: React.FC<GraphicProps> = ({ graphic, durationInFrames, fontFa
   const typeFrames = Math.max(12, Math.min(durationInFrames * 0.55, graphic.label.length * 0.9));
   const typed = Math.round(graphic.label.length * ramp(frame, typeFrom, typeFrames, (t) => t));
   const caret = Math.floor(frame / 8) % 2 === 0 && typed < graphic.label.length + 1;
+  // Inside the card's padding: 906 - 2 x 58. One line when it fits at a
+  // good size; otherwise broken into lines here, because the hand-drawn
+  // underline holds its text on one line and the card would cut the rest.
+  const titleFont = { width: 780, family: SERIF_FONT_FAMILY, weight: 700, trackingEm: -0.02 };
+  const oneLine = fitSize(graphic.title, { ...titleFont, max: 124, min: 40, wrap: false });
+  const titleSize = oneLine >= 84 ? oneLine : fitSize(graphic.title, { ...titleFont, max: 100, min: 56 });
+  const titleLines = oneLine >= 84 ? [graphic.title] : wrapLines(graphic.title, titleSize, titleFont.width, titleFont.family, titleFont.weight, titleFont.trackingEm);
 
   return (
     <Band leave={leave}>
@@ -703,9 +714,14 @@ export const Term: React.FC<GraphicProps> = ({ graphic, durationInFrames, fontFa
       >
         <Shine at={8} />
         <div style={{ ...KICKER, fontSize: 34, marginBottom: 22 }}>definition</div>
-        <div style={{ fontFamily: SERIF_FONT_FAMILY, fontWeight: 700, fontSize: graphic.title.length > 18 ? 100 : 124, lineHeight: 1, color: EX.ink, letterSpacing: '-0.02em' }}>
+        <div style={{ fontFamily: SERIF_FONT_FAMILY, fontWeight: 700, fontSize: titleSize, lineHeight: 1.04, color: EX.ink, letterSpacing: '-0.02em', overflowWrap: 'break-word' }}>
           <Underline progress={ramp(frame, 5, 12, Easing.inOut(Easing.quad))} color={EX.accent} strokeWidth={7} iterations={2} seed={11} style={{ display: 'inline-block' }}>
-            {graphic.title}
+            {titleLines.map((line, index) => (
+              <React.Fragment key={index}>
+                {index > 0 ? <br /> : null}
+                {line}
+              </React.Fragment>
+            ))}
           </Underline>
         </div>
         <div style={{ width: `${rule * 100}%`, height: 4, background: EX.accent, margin: '34px 0 30px' }} />
@@ -810,11 +826,14 @@ export const KeywordPunch: React.FC<{
   const frame = useCurrentFrame();
   const leave = useLeave(durationInFrames);
   if (frame < atFrame - 1) return null;
-  const slam = pop(frame, atFrame - 1, { damping: 11, stiffness: 260, mass: 0.55 });
-  const blur = Math.max(0, (1 - Math.min(1, slam)) * 14);
+  // Eased in, not slammed: a scale-and-blur slam on every emphasis word read
+  // as the frame lurching.
+  const slam = ramp(frame, atFrame - 1, 12, Easing.out(Easing.cubic));
+  const blur = 0;
   // The word, not the sentence around it: a full stop on a slammed word reads as a typo.
   const text = word.replace(/[^\p{L}\p{N}%$'.-]/gu, '').replace(/[.'-]+$/, '');
-  const size = text.length <= 6 ? 190 : text.length <= 9 ? 150 : text.length <= 12 ? 120 : 96;
+  const wantedSize = text.length <= 6 ? 190 : text.length <= 9 ? 150 : text.length <= 12 ? 120 : 96;
+  const size = fitSize(text.toUpperCase(), { max: wantedSize, width: EX.width - EX.sideLeft - EX.sideRight - 20, family: fontFamily, weight: 900, trackingEm: -0.045, wrap: false });
   return (
     <div
       style={{
@@ -823,7 +842,7 @@ export const KeywordPunch: React.FC<{
         [side]: EX.sideLeft,
         maxWidth: EX.width - EX.sideLeft - EX.sideRight,
         opacity: Math.min(1, slam * 1.5) * leave,
-        transform: `scale(${1.35 - 0.35 * Math.min(1, slam)}) rotate(${side === 'left' ? -3 : 3}deg)`,
+        transform: `translateY(${(1 - slam) * 26}px) rotate(${side === 'left' ? -3 : 3}deg)`,
         transformOrigin: side === 'left' ? 'left center' : 'right center',
         filter: blur > 0.3 ? `blur(${blur.toFixed(1)}px)` : undefined,
       }}

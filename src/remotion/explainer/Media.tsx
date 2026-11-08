@@ -1,4 +1,4 @@
-import { AbsoluteFill, CanvasImage, OffthreadVideo, interpolate, useCurrentFrame } from 'remotion';
+import { AbsoluteFill, CanvasImage, Easing, OffthreadVideo, interpolate, useCurrentFrame } from 'remotion';
 import { chromaticAberration } from '@remotion/effects/chromatic-aberration';
 import { zoomBlur } from '@remotion/effects/zoom-blur';
 import { beatRng } from '../../rng.js';
@@ -121,8 +121,10 @@ export const Media: React.FC<{
    * third of a second. It is the cheapest move in editing and the one viewers
    * feel most, because it puts the cut's energy on a word rather than a frame.
    */
+  // A lean, not a lurch: it was 7% in three frames, which read as a glitch.
   if (punchFrame !== null && frame >= punchFrame) {
-    scale += 0.07 * interpolate(frame, [punchFrame, punchFrame + 3, punchFrame + 14], [0, 1, 0], {
+    scale += 0.018 * interpolate(frame, [punchFrame, punchFrame + 12, punchFrame + 36], [0, 1, 0], {
+      easing: Easing.inOut(Easing.sin),
       extrapolateLeft: 'clamp',
       extrapolateRight: 'clamp',
     });
