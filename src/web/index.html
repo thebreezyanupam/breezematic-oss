@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>BreezeMatic — a sentence in, a finished short out</title>
-<meta name="description" content="Free, open-source and local-first: BreezeMatic turns a topic into a finished vertical video — written, voiced, timed, painted or typeset, and mixed — on your own computer." />
+<title>BreezeMatic — Documentation</title>
+<meta name="description" content="BreezeMatic turns a topic into a finished vertical video — written, voiced, timed, painted or typeset, and mixed — on your own computer. Free and open source." />
 <meta property="og:title" content="BreezeMatic" />
-<meta property="og:description" content="A sentence in, a finished short out. Free and open source." />
-<meta property="og:image" content="hero.jpg" />
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='4' y='28' font-size='30' font-family='Arial' fill='%23c9604a'%3E*%3C/text%3E%3C/svg%3E" />
+<meta property="og:description" content="A sentence in, a finished short out. Free, open source, local-first." />
+<meta property="og:image" content="frame.jpg" />
+<meta name="theme-color" content="#ffffff" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='10' y='5' width='12' height='22' rx='3' fill='none' stroke='%2318181b' stroke-width='2.5'/%3E%3C/svg%3E" />
 <style>
   @font-face {
     font-family: 'Inter';
@@ -18,268 +19,260 @@
   }
   :root {
     color-scheme: light;
-    --paper: #fbfaf6;
-    --ink: #121110;
-    --ink-2: #44423e;
-    --mute: #a19e97;
-    --rule: #121110;
-    --hair: rgba(18, 17, 16, 0.14);
-    --wash: #f2eee5;
+    --bg: #ffffff;
+    --bg-2: #fafafa;
+    --code: #f6f6f7;
+    --ink: #18181b;
+    --ink-2: #52525b;
+    --ink-3: #8e8e96;
+    --line: #ececef;
+    --line-2: #e2e2e6;
     --accent: #c9604a;
-    --wrap: 1180px;
-    --gut: clamp(18px, 4vw, 40px);
+    --accent-soft: #fbefeb;
+    --mono: ui-monospace, 'SF Mono', 'Cascadia Mono', Menlo, Consolas, monospace;
+    --top: 56px;
+    --side: 248px;
   }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-padding-top: calc(var(--top) + 16px); }
   body {
-    margin: 0; background: var(--paper); color: var(--ink);
-    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-    font-size: 16px; line-height: 1.55; letter-spacing: -0.006em;
-    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+    margin: 0; background: var(--bg); color: var(--ink);
+    font: 400 15px/1.65 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    letter-spacing: -0.005em; -webkit-font-smoothing: antialiased;
   }
   a { color: inherit; }
-  img, video { display: block; max-width: 100%; }
-  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gut); }
-  .skip { position: absolute; left: -999px; }
-  .skip:focus { left: 12px; top: 12px; background: var(--ink); color: var(--paper); padding: 8px 12px; z-index: 10; }
-  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+  img { display: block; max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+  ::selection { background: var(--accent-soft); }
 
-  /* ---------- top ---------- */
-  .top { padding-top: clamp(22px, 4vw, 40px); }
-  .top .rule { height: 6px; background: var(--rule); }
-  .nav {
-    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
-    padding: 10px 0 0; font-size: 15px;
+  /* ---------- top bar ---------- */
+  .top {
+    position: sticky; top: 0; z-index: 20; height: var(--top);
+    display: flex; align-items: center; gap: 16px; padding: 0 20px;
+    background: rgba(255, 255, 255, 0.86); backdrop-filter: saturate(160%) blur(10px); -webkit-backdrop-filter: saturate(160%) blur(10px);
+    border-bottom: 1px solid var(--line);
   }
-  .nav a { text-decoration: none; }
-  .nav a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
-  .nav .c { justify-self: center; }
-  .nav .r { justify-self: end; }
+  .brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 600; font-size: 15px; text-decoration: none; letter-spacing: -0.015em; }
+  .brand i { width: 9px; height: 15px; border: 1.7px solid var(--ink); border-radius: 2.5px; }
+  .brand small { font: 500 11px var(--mono); color: var(--ink-3); border: 1px solid var(--line-2); border-radius: 5px; padding: 1px 6px; letter-spacing: 0; }
+  .top nav { margin-left: auto; display: flex; align-items: center; gap: 18px; font-size: 13.5px; color: var(--ink-2); }
+  .top nav a { text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+  .gh { display: inline-flex; align-items: center; gap: 7px; height: 32px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: 8px; color: var(--ink) !important; font-weight: 500; }
+  .gh:hover { background: var(--bg-2); }
+  .gh svg { width: 15px; height: 15px; }
+  .menu { display: none; height: 32px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--bg); font: 500 13px 'Inter', sans-serif; color: var(--ink); cursor: pointer; }
 
-  .mark {
-    margin: clamp(10px, 2vw, 18px) 0 0; font-weight: 500;
-    font-size: min(13.2vw, 172px); line-height: 0.86; letter-spacing: -0.065em;
-    white-space: nowrap;
+  /* ---------- layout ---------- */
+  .layout { display: grid; grid-template-columns: var(--side) minmax(0, 1fr); max-width: 1180px; margin: 0 auto; }
+  aside {
+    position: sticky; top: var(--top); height: calc(100vh - var(--top)); overflow-y: auto;
+    padding: 24px 16px 40px 20px; border-right: 1px solid var(--line);
   }
-  .mark .ast { color: var(--accent); font-weight: 400; letter-spacing: -0.02em; }
-  .mark .soft { color: var(--mute); }
-
-  .tag {
-    display: flex; justify-content: space-between; align-items: baseline; gap: 18px; flex-wrap: wrap;
-    margin: clamp(14px, 2.4vw, 26px) 0 clamp(16px, 2.6vw, 28px);
+  aside h4 { margin: 18px 0 6px 10px; font-size: 11.5px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-3); }
+  aside h4:first-child { margin-top: 0; }
+  aside a {
+    display: block; padding: 5px 10px; border-radius: 6px; font-size: 13.5px; color: var(--ink-2); text-decoration: none;
+    border-left: 2px solid transparent; transition: background .15s, color .15s;
   }
-  .tag p { margin: 0; font-size: clamp(18px, 2.2vw, 26px); letter-spacing: -0.02em; line-height: 1.25; max-width: 30ch; }
-  .tag .meta { font-size: 13px; color: var(--ink-2); display: flex; gap: 14px; flex-wrap: wrap; }
-  .tag .meta span::before { content: '— '; color: var(--mute); }
+  aside a:hover { background: var(--bg-2); color: var(--ink); }
+  aside a.on { color: var(--ink); font-weight: 500; background: var(--bg-2); border-left-color: var(--accent); border-radius: 0 6px 6px 0; }
 
-  .hero { margin-block: 0; }
-  .hero .frame { border-radius: 8px; overflow: hidden; aspect-ratio: 18 / 11; background: var(--wash); }
-  .hero img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); animation: settle 2.4s cubic-bezier(.2, .7, .2, 1) forwards; }
-  @keyframes settle { to { transform: scale(1); } }
-  .hero figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
-  .hero figcaption span:last-child { color: var(--mute); }
+  main { padding: 40px 48px 80px; min-width: 0; }
+  .doc { max-width: 760px; }
 
-  /* ---------- sections ---------- */
-  section { padding: clamp(56px, 9vw, 112px) 0 0; }
-  .label {
-    display: flex; justify-content: space-between; align-items: baseline;
-    border-top: 3px solid var(--rule); padding-top: 9px; margin-bottom: clamp(22px, 3vw, 34px);
-    font-size: 14px;
+  /* ---------- intro ---------- */
+  .eyebrow { font: 500 12px var(--mono); color: var(--accent); letter-spacing: .02em; }
+  h1 { margin: 8px 0 12px; font-size: 34px; line-height: 1.15; letter-spacing: -0.03em; font-weight: 650; }
+  .lead { font-size: 17px; line-height: 1.6; color: var(--ink-2); margin: 0 0 20px; max-width: 62ch; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+  .btn { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 8px; font-size: 14px; font-weight: 500; text-decoration: none; border: 1px solid var(--line-2); transition: background .15s, transform .15s; }
+  .btn:hover { transform: translateY(-1px); }
+  .btn.dark { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .btn.dark:hover { background: #2b2b30; }
+  .btn:not(.dark):hover { background: var(--bg-2); }
+  /* the picture, shown open in an editor */
+  .editor { margin: 0; border: 1px solid var(--line-2); border-radius: 12px; overflow: hidden; background: var(--bg); box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 12px 32px -12px rgba(0,0,0,.12); }
+  .ed-bar { display: flex; align-items: center; gap: 12px; height: 36px; padding: 0 12px; border-bottom: 1px solid var(--line); background: var(--bg-2); font: 12px var(--mono); color: var(--ink-3); }
+  .ed-bar .dots { display: flex; gap: 6px; }
+  .ed-bar .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line-2); }
+  .ed-file { color: var(--ink); font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ed-meta { margin-left: auto; white-space: nowrap; }
+  .ed-body { display: grid; grid-template-columns: minmax(0, 1fr) 200px; align-items: stretch; }
+  .ed-player { position: relative; background: #111; min-height: 190px; }
+  .ed-player img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .ed-controls { position: absolute; left: 10px; right: 10px; bottom: 10px; display: flex; align-items: center; gap: 10px; padding: 6px 10px; border-radius: 8px; background: rgba(20,20,22,.55); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); color: #fff; font: 11px var(--mono); }
+  .ed-controls svg { width: 11px; height: 11px; flex: none; }
+  .ed-controls b { flex: 1; height: 3px; border-radius: 2px; background: rgba(255,255,255,.3); }
+  .ed-controls b i { display: block; width: 26.3%; height: 100%; border-radius: inherit; background: #fff; }
+  .ed-panel { margin: 0; padding: 6px 14px; border-left: 1px solid var(--line); font-size: 12.5px; display: flex; flex-direction: column; justify-content: center; }
+  .ed-panel div { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 5px 0; border-bottom: 1px dashed var(--line); }
+  .ed-panel div:last-child { border-bottom: 0; }
+  .ed-panel dt { font: 500 10.5px var(--mono); color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+  .ed-panel dd { margin: 0; color: var(--ink); font-weight: 500; white-space: nowrap; }
+  .ed-panel mark { background: #f6d548; color: var(--ink); padding: 0 3px; border-radius: 2px; }
+  .ed-time { position: relative; padding: 8px 12px 10px; border-top: 1px solid var(--line); background: var(--bg-2); display: grid; gap: 5px; }
+  .trk { display: grid; grid-template-columns: 52px minmax(0, 1fr); align-items: center; font: 10.5px var(--mono); color: var(--ink-3); }
+  .lane { height: 16px; border-radius: 4px; }
+  .clips { display: flex; gap: 3px; }
+  .clips i { border-radius: 4px; background: #d9dde6; }
+  .clips i.on { background: #9fb3c8; }
+  .wave { background: repeating-linear-gradient(90deg, #e3a998 0 2px, transparent 2px 4px); -webkit-mask: radial-gradient(60% 120% at 30% 50%, #000 40%, rgba(0,0,0,.45) 100%); mask: radial-gradient(60% 120% at 30% 50%, #000 40%, rgba(0,0,0,.45) 100%); background-color: #f8e7e2; }
+  .music { background: linear-gradient(90deg, #e6e1f2, #d9d2ee 40%, #e6e1f2); }
+  .head { position: absolute; top: 4px; bottom: 4px; width: 2px; margin-left: 12px; background: var(--accent); border-radius: 1px; }
+  .head::before { content: ''; position: absolute; top: -2px; left: -4px; width: 10px; height: 6px; border-radius: 2px; background: var(--accent); }
+
+  /* ---------- prose ---------- */
+  section { padding-top: 36px; }
+  section + section { border-top: 1px solid var(--line); margin-top: 36px; }
+  h2 { margin: 0 0 10px; font-size: 22px; line-height: 1.3; letter-spacing: -0.02em; font-weight: 600; }
+  h2 a.anchor { text-decoration: none; color: var(--ink-3); opacity: 0; margin-left: 6px; font-weight: 400; transition: opacity .15s; }
+  h2:hover a.anchor { opacity: 1; }
+  p { margin: 0 0 12px; color: var(--ink-2); }
+  p strong, li strong { color: var(--ink); font-weight: 600; }
+  ul, ol { margin: 0 0 12px; padding-left: 20px; color: var(--ink-2); }
+  li { margin: 4px 0; }
+  code { font-family: var(--mono); font-size: 12.8px; background: var(--code); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; color: var(--ink); }
+
+  .pre { position: relative; margin: 12px 0 16px; border: 1px solid var(--line); border-radius: 10px; background: var(--code); overflow: hidden; }
+  .pre .bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px 6px 14px; border-bottom: 1px solid var(--line); font: 11.5px var(--mono); color: var(--ink-3); }
+  .pre button { font: 500 12px 'Inter', sans-serif; color: var(--ink-2); background: var(--bg); border: 1px solid var(--line-2); border-radius: 6px; padding: 3px 9px; cursor: pointer; }
+  .pre button:hover { color: var(--ink); }
+  pre { margin: 0; padding: 14px 16px; overflow-x: auto; font: 13px/1.75 var(--mono); color: var(--ink); }
+  pre .c { color: var(--ink-3); }
+
+  table { width: 100%; border-collapse: collapse; margin: 12px 0 16px; font-size: 13.5px; }
+  th { text-align: left; font-weight: 600; color: var(--ink); padding: 8px 12px 8px 0; border-bottom: 1px solid var(--line-2); white-space: nowrap; }
+  td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--line); color: var(--ink-2); vertical-align: top; }
+  td:first-child { color: var(--ink); font-weight: 500; white-space: nowrap; }
+  td code { white-space: nowrap; }
+  .tag { display: inline-block; font: 500 11px var(--mono); padding: 1px 7px; border-radius: 999px; border: 1px solid var(--line-2); color: var(--ink-2); white-space: nowrap; }
+  .tag.free { color: #2f6b3b; background: #eef7ef; border-color: #d6ebd8; }
+  .tag.paid { color: #8a4a2f; background: var(--accent-soft); border-color: #f2d9cf; }
+  .table-wrap { overflow-x: auto; }
+
+  .note { display: flex; gap: 10px; margin: 14px 0; padding: 12px 14px; border: 1px solid var(--line); border-left: 3px solid var(--accent); border-radius: 8px; background: var(--bg-2); font-size: 14px; color: var(--ink-2); }
+  .note b { color: var(--ink); }
+
+  .steps { list-style: none; padding: 0; counter-reset: s; margin: 12px 0 16px; }
+  .steps li { position: relative; padding: 0 0 12px 34px; margin: 0; }
+  .steps li::before {
+    counter-increment: s; content: counter(s); position: absolute; left: 0; top: 1px;
+    width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--line-2); background: var(--bg);
+    display: grid; place-items: center; font: 500 11px var(--mono); color: var(--ink-2);
   }
-  .label b { font-weight: 600; }
-  .label span { color: var(--mute); font-variant-numeric: tabular-nums; }
+  .steps li::after { content: ''; position: absolute; left: 11px; top: 26px; bottom: 2px; width: 1px; background: var(--line); }
+  .steps li:last-child::after { display: none; }
+  .steps b { color: var(--ink); font-weight: 600; }
 
-  .cols { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); }
-  .lede { font-size: clamp(22px, 2.6vw, 32px); line-height: 1.24; letter-spacing: -0.022em; margin: 0 0 22px; }
-  .lede .arrow { color: var(--accent); }
-  .prose p { margin: 0 0 16px; color: var(--ink-2); max-width: 62ch; }
-  .aside { font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
-  .aside h3 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin: 0 0 4px; }
-  .aside p { margin: 0 0 18px; }
+  .foot { margin-top: 56px; padding-top: 20px; border-top: 1px solid var(--line); display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--ink-3); }
+  .foot a { color: var(--ink-2); }
 
-  /* the reel next to the index of looks */
-  .reel { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
-  .phone {
-    position: sticky; top: 24px;
-    border-radius: 26px; overflow: hidden; aspect-ratio: 9 / 16; background: #000;
-    box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 24px 60px -24px rgba(40, 30, 20, .45);
-  }
-  .phone video { width: 100%; height: 100%; object-fit: cover; }
-  .phone + .cap { font-size: 13px; color: var(--mute); margin-top: 10px; }
+  @media (prefers-reduced-motion: reduce) { .btn:hover { transform: none; } }
 
-  table.index { width: 100%; border-collapse: collapse; font-size: 15px; }
-  table.index tr { border-bottom: 1px solid var(--hair); }
-  table.index tr:first-child { border-top: 1px solid var(--rule); }
-  table.index tr:last-child { border-bottom: 3px solid var(--rule); }
-  table.index td { padding: 14px 10px 14px 0; vertical-align: top; }
-  table.index td:first-child { width: 34%; font-weight: 600; letter-spacing: -0.012em; }
-  table.index td:first-child small { display: block; font-weight: 400; color: var(--mute); font-size: 12.5px; margin-top: 2px; }
-  table.index td:last-child { text-align: right; white-space: nowrap; color: var(--ink-2); font-size: 13.5px; padding-right: 0; }
-  table.index .free { color: var(--ink); }
-  table.index .free::before { content: '●'; color: #5a8f5a; font-size: 9px; vertical-align: 2px; margin-right: 6px; }
-  table.index .opt::before { content: '◐'; color: var(--accent); font-size: 10px; vertical-align: 1px; margin-right: 6px; }
-  table.index td.desc { color: var(--ink-2); }
-  table.index tr { transition: background .2s; }
-  table.index tr:hover { background: var(--wash); }
-
-  /* how it works */
-  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--rule); }
-  .steps div { padding: 16px 16px 22px 0; border-bottom: 1px solid var(--hair); }
-  .steps div:nth-child(n + 5) { border-bottom: 3px solid var(--rule); }
-  .steps b { display: block; font-size: 13px; color: var(--mute); font-weight: 500; font-variant-numeric: tabular-nums; margin-bottom: 18px; }
-  .steps h3 { margin: 0 0 6px; font-size: 19px; letter-spacing: -0.02em; font-weight: 600; }
-  .steps p { margin: 0; font-size: 14px; color: var(--ink-2); }
-
-  /* install */
-  pre {
-    margin: 0 0 18px; padding: 18px 20px; border-radius: 8px; overflow-x: auto;
-    background: var(--ink); color: #eeeae2; font: 13.5px/1.8 ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, monospace;
-  }
-  pre .c { color: #8f8a80; }
-  .copy {
-    float: right; margin: -2px -4px 0 12px; font: 12px 'Inter', sans-serif; color: #eeeae2;
-    background: rgba(255,255,255,.1); border: 0; border-radius: 6px; padding: 5px 9px; cursor: pointer;
-  }
-  .copy:hover { background: rgba(255,255,255,.18); }
-  .needs { font-size: 14px; color: var(--ink-2); margin: 0; }
-
-  /* closing */
-  .closing {
-    margin-top: clamp(56px, 9vw, 112px); padding: clamp(40px, 6vw, 72px) 0;
-    border-top: 3px solid var(--rule); border-bottom: 3px solid var(--rule);
-  }
-  .closing p { margin: 0; font-size: clamp(30px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -0.045em; font-weight: 500; max-width: 18ch; }
-  .closing p span { color: var(--mute); }
-  .closing .go { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 999px;
-    font-size: 15px; font-weight: 600; text-decoration: none; border: 1.5px solid var(--ink);
-  }
-  .btn.solid { background: var(--ink); color: var(--paper); }
-  .btn.solid:hover { background: #2c2a27; }
-  .btn:not(.solid):hover { background: var(--wash); }
-
-  footer { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; padding: 18px 0 40px; font-size: 13.5px; color: var(--ink-2); }
-  footer .c { justify-self: center; }
-  footer .r { justify-self: end; }
-  footer a { text-decoration: none; }
-  footer a:hover { text-decoration: underline; }
-  .fine { font-size: 12.5px; color: var(--mute); padding-bottom: 28px; max-width: 80ch; }
-
-  /* reveal as it scrolls in */
-  .rv { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); }
-  .rv.in { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) {
-    .rv { opacity: 1; transform: none; transition: none; }
-    .hero img { animation: none; transform: none; }
-    html { scroll-behavior: auto; }
-  }
-
-  @media (max-width: 860px) {
-    .cols, .reel { grid-template-columns: minmax(0, 1fr); }
-    .phone { position: relative; top: 0; max-width: 320px; }
-    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .steps div:nth-child(n + 5) { border-bottom: 1px solid var(--hair); }
-    .steps div:nth-child(n + 7) { border-bottom: 3px solid var(--rule); }
-    table.index td:first-child { width: 42%; }
-  }
-  @media (max-width: 540px) {
-    .nav { font-size: 14px; }
-    .steps { grid-template-columns: minmax(0, 1fr); }
-    .steps div:nth-child(n) { border-bottom: 1px solid var(--hair); }
-    .steps div:last-child { border-bottom: 3px solid var(--rule); }
-    table.index td.desc { display: none; }
-    footer { grid-template-columns: 1fr; }
-    footer .c, footer .r { justify-self: start; }
-    .hero figcaption { flex-direction: column; gap: 2px; }
+  /* ---------- small screens ---------- */
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: minmax(0, 1fr); }
+    .menu { display: inline-flex; align-items: center; }
+    .top { gap: 12px; padding: 0 16px; }
+    .top nav a.hide-sm { display: none; }
+    aside {
+      position: fixed; z-index: 15; top: var(--top); left: 0; bottom: 0; width: min(300px, 86vw); height: auto;
+      background: var(--bg); transform: translateX(-100%); transition: transform .25s ease; box-shadow: 0 10px 40px rgba(0,0,0,.08);
+    }
+    body.nav-open aside { transform: none; }
+    main { padding: 28px 16px 64px; }
+    .ed-body { grid-template-columns: minmax(0, 1fr); }
+    .ed-player { min-height: 0; aspect-ratio: 1310 / 549; }
+    .ed-panel { border-left: 0; border-top: 1px solid var(--line); display: grid; grid-template-columns: 1fr 1fr; column-gap: 16px; }
+    .ed-panel div:nth-last-child(2) { border-bottom: 0; }
+    .ed-meta { display: none; }
+    h1 { font-size: 28px; }
+    .lead { font-size: 16px; }
   }
 </style>
 </head>
 <body>
-<a class="skip" href="#main">Skip to content</a>
 
-<header class="wrap top">
-  <div class="rule"></div>
-  <nav class="nav" aria-label="Site">
-    <a href="#looks">Looks</a>
-    <a class="c" href="https://github.com/thebreezyanupam/breezematic-oss">GitHub</a>
-    <a class="r" href="#install">Install&nbsp;&darr;</a>
+<header class="top">
+  <button class="menu" id="menu" type="button" aria-expanded="false" aria-controls="side">Menu</button>
+  <a class="brand" href="#introduction"><i></i>BreezeMatic <small>docs</small></a>
+  <nav aria-label="Site">
+    <a class="hide-sm" href="#quick-start">Quick start</a>
+    <a class="hide-sm" href="#looks">Looks</a>
+    <a class="gh" href="https://github.com/thebreezyanupam/breezematic-oss">
+      <svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0a8 8 0 0 0-2.53 15.59c.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.88.87 2.34.66.07-.52.28-.87.5-1.07-1.78-.2-3.65-.89-3.65-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.66 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8 8 0 0 0 8 0z"/></svg>
+      GitHub
+    </a>
   </nav>
-  <h1 class="mark" aria-label="BreezeMatic"><span class="ast">*</span><span class="soft">Breeze</span>Matic</h1>
-  <div class="tag">
-    <p>A sentence in. A finished short out.</p>
-    <div class="meta"><span>free &amp; open source</span><span>runs on your computer</span><span>AGPL-3.0</span></div>
-  </div>
 </header>
 
-<main id="main">
-  <figure class="wrap hero">
-    <div class="frame"><img src="hero.jpg" width="1800" height="1100" alt="A watercolour of a lighthouse and a sailboat on a dusk sea, painted by BreezeMatic" /></div>
-    <figcaption><span>Painted live by the watercolour look, a wash and a stroke at a time.</span><span>no stock art, no generation fee</span></figcaption>
-  </figure>
+<div class="layout">
+  <aside id="side" aria-label="Contents">
+    <h4>Getting started</h4>
+    <a href="#introduction">Introduction</a>
+    <a href="#quick-start">Quick start</a>
+    <a href="#requirements">Requirements</a>
+    <a href="#keys">Keys</a>
+    <h4>Making videos</h4>
+    <a href="#looks">Looks</a>
+    <a href="#how-it-works">How it works</a>
+    <a href="#the-app">The app</a>
+    <a href="#your-own-script">Your own script</a>
+    <a href="#command-line">Command line</a>
+    <h4>Reference</h4>
+    <a href="#data">Data &amp; privacy</a>
+    <a href="#license">License</a>
+  </aside>
 
-  <section class="wrap" id="about">
-    <div class="label rv"><b>What it is</b><span>01</span></div>
-    <div class="cols">
-      <div class="rv">
-        <p class="lede">BreezeMatic <span class="arrow">&rarr;</span> turn a topic into a finished vertical video: written, voiced, timed to the word, painted or typeset, and mixed.</p>
-        <div class="prose">
-          <p>A forty-second short is about a hundred and twenty words. Writing them is the quick part. What takes the afternoon is everything after: recording a read, pinning every word to a frame, cutting to the beat, setting type that never clips, ducking the music under the voice and mastering it to a number.</p>
-          <p>BreezeMatic does that work and shows its working. Every video is one beat sheet &mdash; every cut, every emphasis, every timing &mdash; that you can read and edit before a frame is rendered. The same seed gives you the same film, twice.</p>
-          <p>It is a local app and a command line. Nothing you make is uploaded unless you publish it, and there is no account to make.</p>
+  <main>
+    <div class="doc">
+
+      <div class="intro" id="introduction">
+        <div class="eyebrow">Introduction</div>
+        <h1>BreezeMatic</h1>
+        <p class="lead">A sentence in, a finished short out. BreezeMatic turns a topic into a vertical video — written, voiced, timed to the word, painted or typeset, and mixed — on your own computer. Free and open source.</p>
+        <div class="actions">
+          <a class="btn dark" href="#quick-start">Get started →</a>
+          <a class="btn" href="https://github.com/thebreezyanupam/breezematic-oss">View on GitHub</a>
         </div>
+        <figure class="editor" aria-label="A video open in BreezeMatic">
+          <div class="ed-bar">
+            <span class="dots" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="ed-file">the-oldest-story.mp4</span>
+            <span class="ed-meta">1920 × 1080 · 30 fps · 2:36</span>
+          </div>
+          <div class="ed-body">
+            <div class="ed-player">
+              <img src="frame.jpg" width="1310" height="549" alt="A watercolour boy in round glasses holding a wand, with the caption: The same story humans have been telling for thousands of years." />
+              <div class="ed-controls" aria-hidden="true">
+                <svg viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/></svg>
+                <span>0:41</span><b><i></i></b><span>2:36</span>
+              </div>
+            </div>
+            <dl class="ed-panel">
+              <div><dt>Look</dt><dd>Explainer</dd></div>
+              <div><dt>Art style</dt><dd>Watercolour</dd></div>
+              <div><dt>Pictures</dt><dd>Generated</dd></div>
+              <div><dt>Voice</dt><dd>Local</dd></div>
+              <div><dt>Captions</dt><dd><mark>Word</mark> highlight</dd></div>
+              <div><dt>Music</dt><dd>Ambient</dd></div>
+            </dl>
+          </div>
+          <div class="ed-time" aria-hidden="true">
+            <div class="trk"><span>Pictures</span><div class="lane clips"><i style="flex:3"></i><i style="flex:2"></i><i class="on" style="flex:4"></i><i style="flex:2"></i><i style="flex:3"></i><i style="flex:5"></i></div></div>
+            <div class="trk"><span>Voice</span><div class="lane wave"></div></div>
+            <div class="trk"><span>Music</span><div class="lane music"></div></div>
+            <div class="head" style="left:calc(64px + (100% - 64px) * 0.263)"></div>
+          </div>
+        </figure>
       </div>
-      <aside class="aside rv">
-        <h3>Bring your own keys</h3>
-        <p>Every service is optional and switched on from the app's Settings. Most have a free tier; without any, it still renders, narrates with a local voice and mixes.</p>
-        <h3>Your data stays yours</h3>
-        <p>Projects, voices, history and keys live in your project folder. Export your keys as one file; delete everything in one go.</p>
-        <h3>Made with</h3>
-        <p>Remotion, p5.brush, whisper.cpp, Kokoro, FFmpeg and a lot of measuring.</p>
-      </aside>
-    </div>
-  </section>
 
-  <section class="wrap" id="looks">
-    <div class="label rv"><b>Looks</b><span>02</span></div>
-    <div class="reel">
-      <div class="rv">
-        <div class="phone"><video src="showreel.mp4" poster="showreel.jpg" autoplay muted loop playsinline preload="metadata" aria-label="A painted short about how honeybees make honey"></video></div>
-        <p class="cap">&ldquo;How honeybees make honey&rdquo; &mdash; the watercolour look.</p>
-      </div>
-      <table class="index rv">
-        <tbody>
-          <tr><td>Painted<small>watercolour</small></td><td class="desc">Every beat painted live while it is read: skies wash in, the subject is inked, the shadow hatched, the words handwritten underneath.</td><td class="free">free</td></tr>
-          <tr><td>Explainer<small>motion graphics</small></td><td class="desc">Real pictures with camera moves; counters, charts, timelines and maps on the beats that carry a fact; captions word by word.</td><td class="opt">free or paid</td></tr>
-          <tr><td>Kinetic type</td><td class="desc">Big animated type over a photograph or a clip, cut to the beat.</td><td class="opt">free or paid</td></tr>
-          <tr><td>Cinematic edit</td><td class="desc">Snap zooms, hard recuts, slow motion on the line that matters, and a film grade.</td><td class="free">free</td></tr>
-          <tr><td>Stick figure</td><td class="desc">A figure with a face acts out every beat in a drawn world, with weather, props and other people.</td><td class="free">free</td></tr>
-          <tr><td>Whiteboard</td><td class="desc">Handwriting and drawings appear under the pen at the pace of the voice.</td><td class="opt">free or paid</td></tr>
-          <tr><td>Storybook</td><td class="desc">A drawn panel per beat with the same character throughout.</td><td class="opt">paid</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <section class="wrap" id="how">
-    <div class="label rv"><b>How it works</b><span>03</span></div>
-    <div class="steps rv">
-      <div><b>01</b><h3>Script</h3><p>From a topic, or your own words shaped into beats &mdash; not rewritten.</p></div>
-      <div><b>02</b><h3>Voice</h3><p>A local voice for free, or Gemini, ElevenLabs or your own cloned voice.</p></div>
-      <div><b>03</b><h3>Timing</h3><p>whisper.cpp pins every word to the millisecond it is said.</p></div>
-      <div><b>04</b><h3>Plan</h3><p>Cuts, emphasis and layout written into one beat sheet you can edit.</p></div>
-      <div><b>05</b><h3>Pictures</h3><p>Openly licensed photos and clips, generated stills, or painted scenes.</p></div>
-      <div><b>06</b><h3>Render</h3><p>Remotion draws every frame at 1080&times;1920, 30 fps.</p></div>
-      <div><b>07</b><h3>Mix</h3><p>Music ducked under the voice, sound on every cut, mastered to &minus;14 LUFS.</p></div>
-      <div><b>08</b><h3>Publish</h3><p>Optional: straight to YouTube or a Facebook Page, with a drafted description.</p></div>
-    </div>
-  </section>
-
-  <section class="wrap" id="install">
-    <div class="label rv"><b>Install</b><span>04</span></div>
-    <div class="cols">
-      <div class="rv">
-        <pre><button class="copy" type="button" data-copy>copy</button><code><span class="c"># get it</span>
+      <section id="quick-start">
+        <h2>Quick start<a class="anchor" href="#quick-start" aria-label="Link to this section">#</a></h2>
+        <p>Clone the repository, install, check the machine, and open the app.</p>
+        <div class="pre"><div class="bar"><span>terminal</span><button type="button" data-copy>Copy</button></div>
+<pre><span class="c"># clone and install</span>
 git clone https://github.com/thebreezyanupam/breezematic-oss.git
 cd breezematic-oss
 pnpm install
@@ -288,55 +281,188 @@ pnpm install
 pnpm cli doctor
 
 <span class="c"># open the app at http://localhost:4747/app</span>
-pnpm cli app</code></pre>
-        <p class="needs">Then open <b>Settings &rarr; Keys</b>. Every key is optional and links to where you get it; Gemini, Pexels, Freesound and Cloudflare all have free tiers.</p>
-      </div>
-      <aside class="aside rv">
-        <h3>Needs</h3>
-        <p>Node.js 22.5 or newer, pnpm, FFmpeg and Chrome. A GPU is not needed.</p>
-        <h3>Licence</h3>
-        <p>AGPL-3.0 with a permission for Remotion. Remotion has its own licence: free for individuals and small teams, paid for larger companies. <a href="https://www.remotion.dev/license">Read it</a> before using BreezeMatic at work.</p>
-      </aside>
-    </div>
-  </section>
+pnpm cli app</pre></div>
+        <ol class="steps">
+          <li><b>Add keys if you want them.</b> Open <strong>Settings → Keys</strong>. Every key is optional; without any, BreezeMatic still renders, narrates with a local voice, and mixes.</li>
+          <li><b>Make a video.</b> On <strong>Create</strong>, type a topic, pick a look and a voice, and press <strong>Generate video</strong>.</li>
+          <li><b>Find it.</b> The finished MP4 lands in <code>out/</code> and in the <strong>Library</strong>.</li>
+        </ol>
+      </section>
 
-  <div class="wrap">
-    <div class="closing rv">
-      <p>The machine should do the labour. <span>The idea is the only part worth an afternoon.</span></p>
-      <div class="go">
-        <a class="btn solid" href="https://github.com/thebreezyanupam/breezematic-oss">Get it on GitHub</a>
-        <a class="btn" href="#install">Install</a>
+      <section id="requirements">
+        <h2>Requirements<a class="anchor" href="#requirements" aria-label="Link to this section">#</a></h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Needs</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td>Node.js 22.5+</td><td>Runs everything, including the built-in SQLite used for the local database.</td></tr>
+            <tr><td>pnpm</td><td>Installs the dependencies.</td></tr>
+            <tr><td>FFmpeg</td><td>Audio, mixing and encoding.</td></tr>
+            <tr><td>Chrome or Chromium</td><td>Remotion draws every frame in it.</td></tr>
+          </tbody>
+        </table></div>
+        <p>No GPU is needed. Models (the local voice, word timing, depth and pose) download on first use and are kept in the project folder.</p>
+      </section>
+
+      <section id="keys">
+        <h2>Keys<a class="anchor" href="#keys" aria-label="Link to this section">#</a></h2>
+        <p>Each key switches one feature on. Add them in <strong>Settings → Keys</strong> — every row links to where you get it — or in <code>.env</code>. They are stored in <code>.local/keys.json</code> and take effect without a restart.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Service</th><th>Turns on</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td>Gemini</td><td>Script writing, art direction, the Gemini voices</td><td><span class="tag free">free tier</span></td></tr>
+            <tr><td>Pexels</td><td>Stock video clips</td><td><span class="tag free">free</span></td></tr>
+            <tr><td>Freesound</td><td>The sound-effect library</td><td><span class="tag free">free</span></td></tr>
+            <tr><td>Cloudflare</td><td>Generated pictures, about 130 a day</td><td><span class="tag free">free plan</span></td></tr>
+            <tr><td>fal.ai</td><td>Generated pictures and your cloned voice</td><td><span class="tag paid">paid</span></td></tr>
+            <tr><td>ElevenLabs</td><td>The most expressive voices</td><td><span class="tag paid">paid</span></td></tr>
+            <tr><td>Supabase</td><td>Optional sign-in and history synced between computers</td><td><span class="tag free">free tier</span></td></tr>
+          </tbody>
+        </table></div>
+        <div class="note"><span>↗</span><span><b>Moving computers?</b> <strong>Export keys</strong> in Settings saves them all as one <code>.env</code> file; <strong>Import keys</strong> puts them back.</span></div>
+      </section>
+
+      <section id="looks">
+        <h2>Looks<a class="anchor" href="#looks" aria-label="Link to this section">#</a></h2>
+        <p>The look decides how a video is drawn. The topic, voice and timing work the same in all of them.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Look</th><th>What it does</th><th>Cost</th></tr></thead>
+          <tbody>
+            <tr><td>Painted</td><td>Every beat painted live in watercolour and ink while it is read, words handwritten underneath.</td><td><span class="tag free">free</span></td></tr>
+            <tr><td>Explainer</td><td>Pictures with camera moves; counters, charts, maps and definitions on the facts. Has an art style.</td><td><span class="tag">free or paid</span></td></tr>
+            <tr><td>Kinetic type</td><td>Large animated words over a photograph or clip, cut to the beat.</td><td><span class="tag">free or paid</span></td></tr>
+            <tr><td>Cinematic</td><td>Snap zooms, recuts, slow motion on the line that matters, a film grade.</td><td><span class="tag free">free</span></td></tr>
+            <tr><td>Stick figure</td><td>A character acts out each beat in a drawn world.</td><td><span class="tag free">free</span></td></tr>
+            <tr><td>Whiteboard</td><td>Writing and drawings appear under the pen.</td><td><span class="tag">free or paid</span></td></tr>
+            <tr><td>Storybook</td><td>An illustrated panel per beat, one character throughout.</td><td><span class="tag paid">paid</span></td></tr>
+          </tbody>
+        </table></div>
+        <p>Long videos (16:9 essays and ambient readings) are under <strong>Create → Long video</strong>.</p>
+      </section>
+
+      <section id="how-it-works">
+        <h2>How it works<a class="anchor" href="#how-it-works" aria-label="Link to this section">#</a></h2>
+        <p>Every video passes through the same stages, and every stage reads one file — the beat sheet — that you can open and edit.</p>
+        <ol class="steps">
+          <li><b>Script.</b> Written from your topic, or your own text split into beats.</li>
+          <li><b>Voice.</b> Local and free, or Gemini, ElevenLabs, or your own cloned voice.</li>
+          <li><b>Timing.</b> whisper.cpp pins every word to the moment it is said.</li>
+          <li><b>Plan.</b> Cuts, emphasis and layout written to <code>work/&lt;slug&gt;/beatsheet.json</code>.</li>
+          <li><b>Pictures.</b> Openly licensed photos and clips, generated stills, or painted scenes.</li>
+          <li><b>Render.</b> Remotion draws 1080 × 1920 at 30 fps; type is measured so it never clips.</li>
+          <li><b>Mix.</b> Music ducked under the voice, sound on the cuts, mastered to −14 LUFS.</li>
+          <li><b>Publish.</b> Optional, to YouTube or a Facebook Page, with a drafted description.</li>
+        </ol>
+      </section>
+
+      <section id="the-app">
+        <h2>The app<a class="anchor" href="#the-app" aria-label="Link to this section">#</a></h2>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Screen</th><th>What it is for</th></tr></thead>
+          <tbody>
+            <tr><td>Create</td><td>Short video (9:16) or long video (16:9): topic, look, voice and reader.</td></tr>
+            <tr><td>Library</td><td>Everything you have made, filtered by short or long form and where it was posted.</td></tr>
+            <tr><td>Presets</td><td>Saved settings — look, pictures, voice, captions, music — to reuse. Never a topic or script.</td></tr>
+            <tr><td>Voices</td><td>Record a clip to clone your own voice.</td></tr>
+            <tr><td>Performance</td><td>Views, likes and comments of what you posted, in charts.</td></tr>
+            <tr><td>Spending</td><td>What paid services cost, by week and by kind, and your limits.</td></tr>
+            <tr><td>Settings</td><td>Keys, connected channels, and delete everything.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="your-own-script">
+        <h2>Your own script<a class="anchor" href="#your-own-script" aria-label="Link to this section">#</a></h2>
+        <p>Paste a script under <strong>Create → Advanced</strong>. <strong>Make video-ready</strong> splits it into beats without changing a word.</p>
+        <ul>
+          <li><strong>Trim to under a minute</strong> drops whole sentences from the middle if it runs long.</li>
+          <li><strong>Keep every word</strong> splits it into beats and drops nothing, however long it runs.</li>
+        </ul>
+        <p>Script tone is switched off while your own script is pasted — it is read as written.</p>
+      </section>
+
+      <section id="command-line">
+        <h2>Command line<a class="anchor" href="#command-line" aria-label="Link to this section">#</a></h2>
+        <p>Everything the app does is also a command. Run them with <code>pnpm cli &lt;command&gt;</code>.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Command</th><th>Does</th></tr></thead>
+          <tbody>
+            <tr><td><code>app</code></td><td>Opens the app at <code>localhost:4747</code>.</td></tr>
+            <tr><td><code>doctor</code></td><td>Checks Node, FFmpeg, Chrome, folders and keys.</td></tr>
+            <tr><td><code>plan --topic "…"</code></td><td>Script, voice, timing and beat sheet. Add <code>--mode painted</code> for a look.</td></tr>
+            <tr><td><code>render --topic "…"</code></td><td>Draws the picture track.</td></tr>
+            <tr><td><code>mix --topic "…"</code></td><td>Sound design and mastering; writes the MP4.</td></tr>
+            <tr><td><code>keys</code></td><td>Lists keys; <code>keys set</code>, <code>unset</code>, <code>export</code>, <code>import</code>.</td></tr>
+            <tr><td><code>validate &lt;file&gt;</code></td><td>Checks a hand-edited beat sheet.</td></tr>
+            <tr><td><code>mimic &lt;clip&gt;</code></td><td>A stick figure performs the movement in a reference clip.</td></tr>
+            <tr><td><code>cache clear</code></td><td>Empties the stage cache.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="pre"><div class="bar"><span>example</span><button type="button" data-copy>Copy</button></div>
+<pre>pnpm cli plan --topic "How honeybees make honey" --mode painted
+pnpm cli render --topic "How honeybees make honey"
+pnpm cli mix --topic "How honeybees make honey"</pre></div>
+      </section>
+
+      <section id="data">
+        <h2>Data &amp; privacy<a class="anchor" href="#data" aria-label="Link to this section">#</a></h2>
+        <p>Nothing you make is uploaded unless you publish it. There is no BreezeMatic server and no account to create.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Folder</th><th>Holds</th></tr></thead>
+          <tbody>
+            <tr><td><code>work/</code></td><td>Projects: scripts, beat sheets, narration, pictures, credits.</td></tr>
+            <tr><td><code>out/</code></td><td>Finished MP4s.</td></tr>
+            <tr><td><code>.local/</code></td><td>Your keys and the local database of history and preferences.</td></tr>
+            <tr><td><code>.cache/</code></td><td>Saved stage results and channel connections.</td></tr>
+          </tbody>
+        </table></div>
+        <p>The app listens on <code>localhost</code> only and refuses requests from other websites. <strong>Settings → Delete everything</strong> removes what you choose, for good.</p>
+      </section>
+
+      <section id="license">
+        <h2>License<a class="anchor" href="#license" aria-label="Link to this section">#</a></h2>
+        <p>BreezeMatic is free software under the <strong>GNU AGPL v3</strong>, with an additional permission for use with Remotion.</p>
+        <div class="note"><span>!</span><span><b>Remotion has its own licence.</b> It is free for individuals, non-profits and companies of up to three people; larger companies need a <a href="https://www.remotion.dev/license">company licence</a>.</span></div>
+        <p>Fonts, icons and every dependency's licence are listed in <code>THIRD_PARTY_NOTICES.md</code>. Pictures, footage, music and sounds fetched for a video keep their own licences; credits are written next to each video.</p>
+      </section>
+
+      <div class="foot">
+        <span>BreezeMatic — free and open source</span>
+        <span>Painted with <a href="https://github.com/acamposuribe/p5.brush">p5.brush</a></span>
       </div>
     </div>
-  </div>
-</main>
-
-<footer class="wrap">
-  <span>BreezeMatic</span>
-  <span class="c">Free &amp; open source &middot; AGPL-3.0</span>
-  <a class="r" href="https://github.com/thebreezyanupam/breezematic-oss">GitHub &nearr;</a>
-</footer>
-<p class="wrap fine">Painted with <a href="https://github.com/acamposuribe/p5.brush">p5.brush</a> by Alejandro Campos Uribe (MIT). Icons in the showreel and the painting by Delapouite and Lorc from <a href="https://game-icons.net">game-icons.net</a> (CC BY 3.0). Rendered with <a href="https://www.remotion.dev">Remotion</a>.</p>
+  </main>
+</div>
 
 <script>
-  // Fade sections in as they arrive; everything is visible without this.
-  (() => {
-    const items = document.querySelectorAll('.rv');
-    if (!('IntersectionObserver' in window)) { items.forEach((el) => el.classList.add('in')); return; }
-    const io = new IntersectionObserver((entries) => {
-      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
-    }, { rootMargin: '0px 0px -8% 0px' });
-    items.forEach((el) => io.observe(el));
-  })();
+  // The sidebar marks the section you are reading.
+  const links = [...document.querySelectorAll('aside a')];
+  const targets = links.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
+  const mark = () => {
+    let current = targets[0];
+    for (const t of targets) if (t.getBoundingClientRect().top < 120) current = t;
+    // At the very bottom the last short sections can't reach the top: mark the last one.
+    if (innerHeight + scrollY >= document.documentElement.scrollHeight - 4) current = targets[targets.length - 1];
+    links.forEach((a) => a.classList.toggle('on', a.getAttribute('href') === '#' + current.id));
+  };
+  addEventListener('scroll', mark, { passive: true });
+  mark();
 
-  // Copy the install commands without the comments.
+  // On small screens the sidebar is a drawer.
+  const menu = document.getElementById('menu');
+  menu.addEventListener('click', () => {
+    const open = document.body.classList.toggle('nav-open');
+    menu.setAttribute('aria-expanded', String(open));
+  });
+  links.forEach((a) => a.addEventListener('click', () => { document.body.classList.remove('nav-open'); menu.setAttribute('aria-expanded', 'false'); }));
+
+  // Copy a code block without its comments.
   for (const button of document.querySelectorAll('[data-copy]')) {
     button.addEventListener('click', async () => {
-      const code = button.parentElement.querySelector('code').innerText
-        .split('\n').filter((line) => line.trim() !== '' && !line.trim().startsWith('#')).join('\n');
-      try { await navigator.clipboard.writeText(code); button.textContent = 'copied'; }
-      catch { button.textContent = 'select it'; }
-      setTimeout(() => { button.textContent = 'copy'; }, 1600);
+      const text = button.closest('.pre').querySelector('pre').innerText
+        .split('\n').filter((l) => l.trim() && !l.trim().startsWith('#')).join('\n');
+      try { await navigator.clipboard.writeText(text); button.textContent = 'Copied'; }
+      catch { button.textContent = 'Select to copy'; }
+      setTimeout(() => { button.textContent = 'Copy'; }, 1500);
     });
   }
 </script>

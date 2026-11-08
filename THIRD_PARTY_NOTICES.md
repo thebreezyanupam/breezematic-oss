@@ -15,7 +15,7 @@ someone else, and under what terms.
 | IBM Plex Mono | `src/remotion/fonts/ibm-plex-mono-*.woff2` | SIL OFL 1.1 | IBM Corp. — [licence](licenses/OFL-1.1-ibm-plex-mono.txt) |
 | Noto Sans Devanagari | `src/remotion/fonts/noto-sans-devanagari-*.woff2` | SIL OFL 1.1 | The Noto Project Authors — [licence](licenses/OFL-1.1-noto-sans-devanagari.txt) |
 | War icons (silhouettes) | `src/remotion/war/icons.ts` | CC BY 3.0 (a few CC0) | game-icons.net — icons by Lorc, Delapouite and the other artists named on each icon in the file. https://game-icons.net |
-| Website showreel | `web/showreel.mp4` | — | Made with BreezeMatic's painted mode. Icons made by Delapouite and Lorc from game-icons.net (CC BY 3.0). |
+| Website picture | `web/frame.jpg`, `src/web/frame.jpg` | — | A frame from a video made with BreezeMatic. |
 
 ## Used at run time (installed from npm or downloaded, not contained here)
 
