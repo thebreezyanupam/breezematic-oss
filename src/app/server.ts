@@ -611,7 +611,7 @@ route('GET', /^\/api\/status$/, async (_req, res) => {
       },
       {
         id: 'elevenlabs',
-        label: 'ElevenLabs — one fixed voice, the most expressive',
+        label: 'ElevenLabs — the most expressive',
         hosted: true,
         available: elevenConfigured(),
       },

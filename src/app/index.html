@@ -1411,13 +1411,19 @@
       <div class="sect">
         <div class="grid2">
           <div><label class="lbl" for="opt-language">Language</label><select id="opt-language"></select></div>
-          <div><label class="lbl" for="opt-engine">Voice engine</label><select id="opt-engine"></select></div>
+          <div><label class="lbl" for="opt-engine">Voice</label><select id="opt-engine"></select></div>
         </div>
-        <div style="margin-top:11px">
+        <!-- One reader, from whichever voice is chosen: the characters for the
+             local and Gemini voices, the account's voices for ElevenLabs, your
+             recordings for a cloned voice. Only the one that applies is shown. -->
+        <div style="margin-top:11px" id="row-character">
           <label class="lbl" for="opt-character">Reader</label><select id="opt-character"></select>
         </div>
         <div style="margin-top:11px" id="row-elevenvoice" hidden>
-          <label class="lbl" for="opt-elevenvoice">ElevenLabs voice</label><select id="opt-elevenvoice"></select>
+          <label class="lbl" for="opt-elevenvoice">Reader</label><select id="opt-elevenvoice"></select>
+        </div>
+        <div style="margin-top:11px" id="row-clonevoice" hidden>
+          <label class="lbl" for="opt-clonevoice">Reader</label><select id="opt-clonevoice"></select>
         </div>
         <p class="hint" id="language-hint" style="margin-top:7px"></p>
         <p class="hint" id="voice-hint" style="margin-top:7px"></p>
@@ -1437,7 +1443,10 @@
               <div><label class="lbl" for="opt-effect">Background</label><select id="opt-effect"></select></div>
               <div><label class="lbl" for="opt-style">Type style</label><select id="opt-style"></select></div>
             </div>
-            <div><label class="lbl" for="opt-tone">Script tone</label><select id="opt-tone"></select></div>
+            <div>
+              <label class="lbl" for="opt-tone">Script tone</label><select id="opt-tone"></select>
+              <p class="hint" id="tone-hint" style="margin-top:4px">How the script is written for you. Not used when you paste your own.</p>
+            </div>
 
             <p class="advhead" data-owns="boardtex boardtheme boardcontent boardimg">Board</p>
 
@@ -1573,18 +1582,12 @@
                 <button class="btn ghost sm" id="btn-adapt" disabled>Make video-ready</button>
                 <span class="hint" id="script-meta"></span>
               </div>
-              <p class="hint">Not a word is changed &mdash; only where the lines break, and how much fits under a minute.</p>
+              <p class="hint">Not a word is changed &mdash; only where the lines break, and, if you choose to trim, how much fits under a minute.</p>
               <label class="lbl" for="opt-keepall" style="margin-top:9px">Length</label>
               <select id="opt-keepall">
                 <option value="trim" selected>Trim to under a minute &mdash; drops sentences if it runs long</option>
                 <option value="keep">Keep every word &mdash; read exactly as written, even past a minute</option>
               </select>
-            </div>
-            <div class="grid2">
-              <div><label class="lbl" for="opt-seed">Seed</label><input id="opt-seed" type="number" min="0" placeholder="from topic" /></div>
-              <div><label class="lbl" for="opt-variant">Draft</label>
-                <select id="opt-variant"><option value="0">Variant 0</option><option value="1">Variant 1</option><option value="2">Variant 2</option></select>
-              </div>
             </div>
             <label class="check"><input type="checkbox" id="opt-force" /> Ignore cached stage output</label>
           </div>
@@ -2931,13 +2934,10 @@ async function api(method, url, body) {
 }
 
 function runOptions() {
-  const seed = $('opt-seed').value.trim();
   const script = $('script-input').value.trim();
   return {
     topic: $('topic').value.replace(/\s+/g, ' ').trim(),
-    variant: Number($('opt-variant').value),
     force: $('opt-force').checked,
-    ...(seed === '' ? {} : { seed: Number(seed) }),
     ...(script === '' ? {} : { script }),
     // Your words, all of them: a Short can run to three minutes, and a joke
     // script loses its setups first when it is cut to fit one.
@@ -2984,13 +2984,19 @@ function runOptions() {
         ? { musicStartMs: Number($('opt-musicstart').value) }
         : {}),
     }),
-    ...($('opt-character').value === '' ? {} : { character: $('opt-character').value }),
+    ...($('opt-character').value === '' || !['kokoro', 'gemini'].includes($('opt-engine').value)
+      ? {}
+      : { character: $('opt-character').value }),
     ...($('opt-engine').value === '' ? {} : { ttsProvider: $('opt-engine').value }),
     ...($('opt-engine').value === 'elevenlabs' && $('opt-elevenvoice').value !== ''
       ? { elevenVoice: $('opt-elevenvoice').value }
       : {}),
+    ...($('opt-engine').value === 'clone' && $('opt-clonevoice').value !== ''
+      ? { cloneVoice: $('opt-clonevoice').value }
+      : {}),
     language: $('opt-language').value || 'en',
-    ...($('opt-tone').value === '' ? {} : { tone: $('opt-tone').value }),
+    // The tone shapes a script being written; a pasted one is read as it is.
+    ...($('opt-tone').value === '' || $('script-input').value.trim() !== '' ? {} : { tone: $('opt-tone').value }),
   };
 }
 
@@ -5227,6 +5233,12 @@ function describeScript(text, prefix) {
 function refreshScriptMeta() {
   const text = $('script-input').value;
   $('btn-adapt').disabled = running || text.trim() === '';
+  // A pasted script is read as written, so the tone it would have been written in is moot.
+  const own = text.trim() !== '';
+  $('opt-tone').disabled = own;
+  $('tone-hint').textContent = own
+    ? 'Off while your own script is pasted: it is read as written.'
+    : 'How the script is written for you. Not used when you paste your own.';
   $('script-meta').textContent = describeScript(text, '');
 }
 
@@ -5522,7 +5534,6 @@ async function syncPreferences() {
     localStorage.setItem('breezematic-theme', prefs.theme);
     document.documentElement.dataset.theme = prefs.theme;
     if (prefs.effect) $('opt-effect').value = prefs.effect;
-    if (Number.isInteger(prefs.variant)) $('opt-variant').value = String(prefs.variant);
   } catch (error) {
     appendLog('warn', error.message);
   }
@@ -5544,10 +5555,6 @@ $('auth-password').addEventListener('keydown', (event) => {
   if (event.key === 'Enter') authenticate('signin');
 });
 $('opt-effect').addEventListener('change', () => savePreference({ effect: $('opt-effect').value }));
-$('opt-variant').addEventListener('change', () =>
-  savePreference({ variant: Number($('opt-variant').value) }),
-);
-
 $('btn-theme').onclick = () => {
   const next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
   localStorage.setItem('breezematic-theme', next);
@@ -9523,8 +9530,9 @@ function syncVoiceHint() {
    * that instead of advertising a timbre nobody is going to hear.
    */
   const cloning = $('opt-engine').value === 'clone';
-  $('voice-hint').textContent = cloning
-    ? 'The recording is the voice. The reader only sets the pace now.'
+  const engineNow = $('opt-engine').value;
+  $('voice-hint').textContent = cloning || engineNow === 'elevenlabs'
+    ? ''
     : reader
       ? reader.blurb
       : '';
@@ -9579,11 +9587,27 @@ async function loadElevenVoices() {
 }
 
 function syncElevenRows() {
-  const shorts = $('opt-engine').value === 'elevenlabs';
+  const engine = $('opt-engine').value;
+  const shorts = engine === 'elevenlabs';
   const books = $('bk-engine').value === 'elevenlabs';
+  $('row-character').hidden = engine !== 'kokoro' && engine !== 'gemini' && engine !== '';
   $('row-elevenvoice').hidden = !shorts;
+  $('row-clonevoice').hidden = engine !== 'clone';
   $('bk-row-elevenvoice').hidden = !books;
   if (shorts || books) loadElevenVoices();
+  if (engine === 'clone') void loadCloneReaders();
+}
+
+/** Your recorded voices, as the reader for a cloned read. */
+async function loadCloneReaders() {
+  let voices = [];
+  try { voices = (await api('GET', '/api/voices')).voices || []; } catch { voices = []; }
+  const select = $('opt-clonevoice');
+  const keep = select.value;
+  select.innerHTML = voices.length === 0
+    ? '<option value="">No recorded voices yet</option>'
+    : voices.map((v) => `<option value="${v.id}">${String(v.name).replace(/</g, '&lt;')}</option>`).join('');
+  if (keep && voices.some((v) => v.id === keep)) select.value = keep;
 }
 for (const id of ['opt-engine', 'bk-engine']) {
   $(id).addEventListener('change', syncElevenRows);
@@ -9874,7 +9898,7 @@ const ADV_FIELDS = ['opt-boardtex', 'opt-boardtheme', 'opt-boardcontent',
                     'opt-boardimg', 'opt-effect', 'opt-style', 'opt-music', 'opt-musiclevel',
                     'opt-captionsize', 'opt-subtitles', 'opt-artstyle', 'opt-stickworld', 'opt-paneltex',
                     'opt-tone', 'opt-fadein', 'opt-fadeout', 'opt-musicstart',
-                    'opt-imgcount', 'opt-seed', 'opt-variant',
+                    'opt-imgcount',
                     'opt-force', 'script-input'];
 let advBaseline = null;
 
