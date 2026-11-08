@@ -5,7 +5,7 @@
   "license": "AGPL-3.0-only",
   "type": "module",
   "description": "A sentence in, a finished short out: topic to finished vertical video, on your own computer.",
-  "homepage": "https://breezematic.vercel.app",
+  "homepage": "https://breezematic-oss.vercel.app",
   "repository": {
     "type": "git",
     "url": "https://github.com/thebreezyanupam/breezematic-oss.git"

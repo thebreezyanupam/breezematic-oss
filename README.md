@@ -7,7 +7,7 @@ vertical video — written, voiced, timed to the word, painted or typeset, and m
 your own computer. Free and open source; a local app and a command line; nothing you make
 is uploaded unless you publish it.
 
-**Website:** https://breezematic.vercel.app
+**Website:** https://breezematic-oss.vercel.app
 
 Seven looks: painted watercolour, explainer (motion graphics), kinetic type, cinematic
 edit, stick figure, whiteboard and illustrated storybook. Every service it can use is
