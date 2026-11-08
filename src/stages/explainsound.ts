@@ -10,12 +10,14 @@ import {
 } from '../assets/library.js';
 import { narrationOf, shapeOf, speechIn, type Narration } from '../assets/envelope.js';
 import {
+  NO_GRAPHIC,
   SUBSCRIBE_TIMING,
   cueTime,
   itemTimes,
   subscribeMoment,
   type TimedWord,
 } from '../explainer.js';
+import { beatWords } from '../schema.js';
 import { log } from '../log.js';
 import { loadSfxLibrary, resolveCue, type Placement } from '../sfx.js';
 import type { BeatSheet } from '../schema.js';
@@ -39,6 +41,9 @@ import { lufsOf } from './warsound.js';
  *   term       a ding as the card opens
  *   callout    a whoosh as the lower third wipes on
  *   subscribe  the card's pop, the mouse click, the bell
+ *   pen        a nib on paper wherever a stroke is drawn by hand: the circle
+ *              round a headline's word, a definition's underline, the
+ *              underline under a word written large
  *
  * The cut sounds -- the whoosh on each transition, the riser into the turn --
  * are the sheet's own cues and are mixed with the rest. This adds only what
@@ -50,17 +55,36 @@ const MIN_REPEAT_MS = 260;
 
 type Event = { kind: SoundKind | 'click'; atMs: number; extraDb?: number };
 
+/** Two strokes of a pen: a circle goes round twice, an underline is drawn twice over. */
+function pen(events: Event[], atMs: number): void {
+  events.push({ kind: 'pen', atMs });
+  events.push({ kind: 'pen', atMs: atMs + 290, extraDb: -2 });
+}
+
 function eventsOf(sheet: BeatSheet): Event[] {
   const events: Event[] = [];
-  for (const beat of sheet.beats) {
-    const graphic = beat.graphic;
+  sheet.beats.forEach((beat, index) => {
+    // The renderer opens on a headline when the first beat has no graphic.
+    const graphic = beat.graphic ?? (index === 0 ? { ...NO_GRAPHIC, kind: 'headline' as const } : null);
     const words: TimedWord[] = beat.captions ?? [];
-    if (graphic === null || graphic.kind === 'none') continue;
     const start = beat.startMs;
+    const emphasis = beat.emphasisWordIndex === null ? null : (beatWords(beat.lines)[beat.emphasisWordIndex] ?? null);
+    // A word written large and underlined (ExplainerVideo's KeywordPunch), three frames after it is said.
+    if (graphic === null || graphic.kind === 'none') {
+      if (index > 0 && emphasis !== null && subscribeMoment(words) === null) {
+        const said = cueTime(emphasis, words, start);
+        if (said !== null) pen(events, said + 100);
+      }
+      return;
+    }
     const items = (): number[] => itemTimes(graphic.items, words, start, beat.endMs);
     switch (graphic.kind) {
-      case 'headline':
+      case 'headline': {
+        // The circle round the hot word starts as the word is said (at least four frames in).
+        const said = emphasis === null ? null : cueTime(emphasis, words, start);
+        if (said !== null) pen(events, start + Math.max(133, said - start));
         break;
+      }
       case 'stat': {
         const said = cueTime(graphic.cue, words, start);
         // Matches the renderer: the counter lands four frames after the word.
@@ -80,6 +104,8 @@ function eventsOf(sheet: BeatSheet): Event[] {
         break;
       case 'term':
         events.push({ kind: 'ding', atMs: start + 120 });
+        // The underline under the term, from frame five.
+        pen(events, start + 170);
         break;
       case 'callout':
         events.push({ kind: 'whoosh', atMs: start + 200, extraDb: -2 });
@@ -90,7 +116,7 @@ function eventsOf(sheet: BeatSheet): Event[] {
         events.push({ kind: 'pop', atMs: start + 900, extraDb: 1 });
         break;
     }
-  }
+  });
 
   const plug = subscribeMoment(sheet.beats.flatMap((beat) => beat.captions ?? []));
   if (plug !== null) {

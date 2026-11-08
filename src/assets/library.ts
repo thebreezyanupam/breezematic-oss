@@ -25,6 +25,8 @@ export const SOUND_KINDS = [
   'rimshot', 'sad-trombone', 'dun-dun', 'airhorn', 'record-scratch', 'boing', 'pop',
   'bonk', 'punch', 'gong', 'ding', 'wrong', 'correct', 'bleep', 'crickets',
   'heartbeat', 'morse', 'clock', 'cash', 'whoosh', 'slide-up', 'slide-down',
+  // drawing: a nib on paper, under an underline or a circled word
+  'pen',
 ] as const;
 
 export type SoundKind = (typeof SOUND_KINDS)[number];
@@ -77,6 +79,7 @@ export const SOUND_USE: Record<SoundKind, string> = {
   whoosh: 'fast movement, a swipe, a quick transition',
   'slide-up': 'a slide whistle going up: something rising, a rapid promotion',
   'slide-down': 'a slide whistle going down: something falling, a morale collapse',
+  pen: 'a pen or marker drawing on paper: an underline, a circle, writing'
 };
 
 /**
@@ -93,6 +96,7 @@ export const SOUND_GAIN_DB: Record<SoundKind, number> = {
   pop: -4, bonk: -1, punch: 0, gong: -3, ding: -4, wrong: -3, correct: -4, bleep: -2,
   crickets: -8, heartbeat: -4, morse: -8, clock: -8, cash: -3, whoosh: -4,
   'slide-up': -3, 'slide-down': -3,
+  pen: -6,
 };
 
 /**
@@ -113,6 +117,7 @@ export const SOUND_LEVEL_DB: Record<SoundKind, number> = {
   pop: -13, bonk: -9, punch: -8, gong: -11, ding: -13, wrong: -11, correct: -13, bleep: -7,
   crickets: -17, heartbeat: -13, morse: -17, clock: -17, cash: -11, whoosh: -13,
   'slide-up': -11, 'slide-down': -11,
+  pen: -16,
 };
 
 /** More off a sound that lands while the voice is still talking: never step on a word. */
@@ -140,6 +145,7 @@ export const SOUND_TIMING: Record<SoundKind, SoundTiming> = {
   boing: 'on', pop: 'on', bonk: 'on', punch: 'on', gong: 'after', ding: 'on', wrong: 'after', correct: 'after',
   bleep: 'on', crickets: 'after', heartbeat: 'on', morse: 'on', clock: 'on', cash: 'on', whoosh: 'centre',
   'slide-up': 'on', 'slide-down': 'on',
+  pen: 'on',
 };
 
 /** How long after a phrase ends an "after" sound comes in: a beat, not a gap. */

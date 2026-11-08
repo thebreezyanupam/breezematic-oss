@@ -62,6 +62,8 @@ const PACK_PICKS: PackPick[] = [
   { kind: 'gunshot', pack: 'oga-100', match: /shot_01\.ogg$/ },
   { kind: 'boing', pack: 'oga-100', match: /spring_0[1-46-9]\.ogg$/ },
   { kind: 'pop', pack: 'oga-100', match: /plop_0[12]\.ogg$/ },
+  // A nib dragged across paper (Kenney, CC0): under an underline or a circled word.
+  { kind: 'pen', pack: 'kenney-interface', match: /scratch_00[1245]\.ogg$/ },
   { kind: 'gong', pack: 'oga-100', match: /gong_0[12]\.ogg$/ },
   { kind: 'punch', pack: 'kenney-impact', match: /impactPunch_heavy_00[0-3]\.ogg$/ },
   { kind: 'bonk', pack: 'kenney-impact', match: /impactWood_heavy_00[0-2]\.ogg$/ },
