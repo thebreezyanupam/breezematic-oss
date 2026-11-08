@@ -1,5 +1,7 @@
 # BreezeMatic
 
+[![CI](https://github.com/thebreezyanupam/breezematic-oss/actions/workflows/ci.yml/badge.svg)](https://github.com/thebreezyanupam/breezematic-oss/actions/workflows/ci.yml)
+
 **A sentence in, a finished short out.** BreezeMatic turns a topic into a finished 9:16
 vertical video — written, voiced, timed to the word, painted or typeset, and mixed — on
 your own computer. Free and open source; a local app and a command line; nothing you make
@@ -11,32 +13,56 @@ Seven looks: painted watercolour, explainer (motion graphics), kinetic type, cin
 edit, stick figure, whiteboard and illustrated storybook. Every service it can use is
 optional and switched on from the app's Settings; most have a free tier.
 
-## Status
+## What's inside
 
-| # | stage    | what it does                                  | built |
-|---|----------|-----------------------------------------------|-------|
-| 1 | script   | LLM writes narration + structural tags        | yes   |
-| 2 | voice    | TTS renders narration to WAV                  | yes   |
-| 3 | align    | whisper.cpp word-level timestamps             | yes   |
-| 4 | beats    | music beat-grid lookup                        | grid from `MUSIC_BPM`, track from `assets/music/` |
-| 5 | plan     | assemble the beat sheet                       | yes   |
-| 6 | visuals  | fetch + cache background clips                | shader fields + Commons photos or generated stills |
-| 7 | render   | Remotion, picture only (silent)               | yes   |
-| 8 | mix      | FFmpeg sound design + mastering               | yes   |
-| 9 | app      | local topic-submit UI over the same stages    | yes   |
-| 10 | accounts | Supabase auth, preferences, project history   | yes (optional) |
-
-Phase 1 is the spine: schema, config, cache, lint, CLI. Stages that do not exist are
-not in the repo.
-
-Stage 4 lays the snap grid at `MUSIC_BPM` and picks a bed from `assets/music/`. Stage 6
-renders a shader field and, when imagery is on, puts a photograph behind it — openly
-licensed off Wikimedia Commons, or generated for the script with FLUX.1 [schnell]. Neither
-reaches for stock video: there is still no Pexels footage in the pipeline.
-
-Stages live in `src/stages/` as plain library functions. `src/commands/` holds thin CLI
-adapters over them. Phase 9's UI is another adapter over the same functions, not a
+About 51,000 lines of TypeScript across 178 files: 55 pipeline stages, 14 service
+providers, 60-odd Remotion components behind seven render modes, a local web app, and a
+command line over the same library functions. The app is an adapter over the stages, not a
 second implementation.
+
+### The pipeline
+
+| stage | what it does | built on |
+|---|---|---|
+| script | writes narration with structural tags, or shapes a pasted script into beats without changing a word | Gemini, or a deterministic local splitter |
+| pronounce | turns display text into spoken text (`$4.2b` to "four point two billion dollars") and records every substitution | rules in `src/pronounce.ts` |
+| voice | reads the narration | Kokoro (local), Gemini TTS, ElevenLabs, a cloned voice through Chatterbox |
+| align | pins every word to the moment it is said | whisper.cpp |
+| plan | assembles the beat sheet: cuts on the tempo grid or between sentences, templates, motion, emphasis, cues; seeded | `src/stages/plan.ts`, `src/rng.ts` |
+| pictures | openly licensed photos and clips, generated stills, depth plates and cut-outs | Wikimedia Commons, Pexels, FLUX via fal.ai, Cloudflare Workers AI, Gemini; Depth Anything V2 and BiRefNet run locally |
+| render | the silent picture track, 1080 × 1920 at 30 fps | Remotion and React; three.js, d3-geo with Natural Earth for maps, p5.brush for painting |
+| sound | effects placed against speech onsets measured from the narration's envelope | Freesound and CC0 packs; envelope analysis in `src/assets/envelope.ts` |
+| mix | music under the voice, ducked, two-pass loudness to −14 LUFS | FFmpeg |
+| publish | upload with a drafted description and the credits each video owes | YouTube Data API, Facebook Pages |
+
+Long-form has its own stages on the same spine: 16:9 essays, chapters, and readings of
+public-domain books from Project Gutenberg. `mimic` retargets the movement in a reference
+clip onto the stick figure with the RTMO pose model on onnxruntime.
+
+### Render modes
+
+| mode | how it draws |
+|---|---|
+| `painted` | every beat painted live in watercolour and ink with p5.brush; handwritten captions |
+| `explainer` | pictures with camera moves, plus counters, charts, maps and definitions on the facts; eight art styles |
+| `kinetic` | large animated type over a shader field, a photograph or a clip |
+| `cinema` | snap zooms, recuts, speed ramps and a film grade over footage |
+| `stickman` | a character acting out each beat in a drawn world |
+| `whiteboard` | writing and line drawings appearing under the pen |
+| `storybook` | an illustrated panel per beat with one consistent character |
+
+### How it holds together
+
+- **One contract.** Every stage reads and writes the beat sheet in
+  [`src/schema.ts`](src/schema.ts), now at schema version 7 with migrations for older sheets.
+  Hard invariants fail; style rules in [`src/lint.ts`](src/lint.ts) only warn.
+- **Determinism where it can be had.** All randomness goes through
+  [`src/rng.ts`](src/rng.ts): each beat gets its own stream from `seed ^ hash(beatId)`, so the
+  order Remotion renders frames in across parallel tabs cannot change the output.
+- **Content-hash caching.** Stage results are keyed by a hash of their inputs, written
+  atomically, and reused across runs.
+- **Honest accounting.** The cost ledger says a total is understated when a model has no
+  price, rather than reporting a wrong number.
 
 ## Display text vs spoken text
 
@@ -426,13 +452,39 @@ in the directory that matches no cue is listed as ignored.
 ## Determinism
 
 Same beat sheet + same seed produces the same picture: all randomness goes through
-`src/rng.ts` (seeded mulberry32, scoped per beat id), fonts will be bundled rather than
+`src/rng.ts` (seeded mulberry32, scoped per beat id), fonts are bundled rather than
 fetched, and cache keys are content hashes of stage inputs.
 
 Byte-identical output is only claimed for stages 5–8, inside Docker. Stages 1–3 are not
 reproducible by nature — an LLM is not deterministic at any temperature, and TTS and ASR
 drift across library and CPU versions. That is exactly why the beat sheet is the
 checkpoint: freeze it once, re-render forever.
+
+The planning half of that claim is checked on every push: see [Tests](#tests).
+
+## Tests
+
+```
+pnpm test          # vitest, once
+pnpm test:watch    # while working
+pnpm typecheck
+```
+
+The tests run offline, with no keys and no models, in under a second:
+
+- **Determinism.** The same plan input gives a byte-identical beat sheet; a different seed
+  gives a different one; per-beat random streams do not depend on draw order.
+- **The plan.** Beats are ordered, non-overlapping and cover the narration; every displayed
+  word survives, in order; sentence cuts land on sentence ends; the sheet passes its own
+  schema. A snapshot records the templates, motion, emphasis and cues it chose.
+- **The contract.** The stub fixture parses and migrates; overlapping beats, duplicate ids,
+  out-of-range emphasis and unknown fields are rejected.
+- **Text.** "Keep every word" keeps every word; trimming only drops words, never adds or
+  reorders them; cue words are found in the timings; numbers round-trip for the counters.
+
+[CI](.github/workflows/ci.yml) runs the type check and the tests on every push and pull
+request. When a change to planning is intended, update the snapshot with
+`pnpm exec vitest run -u` and commit it with the change.
 
 ## Cost
 
@@ -453,27 +505,28 @@ config and are overridable by env — never inline.
 
 ```
 src/
-  cli.ts         commander entry
-  config.ts      env parsing, pinned model ids, render/audio/plan constants
-  schema.ts      zod beat sheet, the contract
-  lint.ts        style rules as warnings
-  cache.ts       content-hash keyed disk cache, atomic writes
-  rng.ts         seeded PRNG
-  report.ts      tables for CLI output
-  ffmpeg.ts      spawn wrapper, duration probe
-  loudness.ts    two-pass loudnorm, duck ratio maths
-  sfx.ts         cue -> sample file resolution
-  providers/     gemini (text), flux (images), shared errors
-  stages/        script, adapt, voice, align, plan, images, imagegen, render, mix,
-                 pipeline (their composition)
-  remotion/      composition, templates, bundled font
-  app/           http server + page, the phase 9 adapter
-  supabase/      account, preferences and history client
-  commands/
-assets/
-  bg/ music/ sfx/ fonts/    gitignored; built by later phases
+  cli.ts          commander entry
+  config.ts       env parsing, pinned model ids, render/audio/plan constants
+  schema.ts       zod beat sheet: the contract, with migrations
+  lint.ts         style rules as warnings
+  cache.ts        content-hash keyed disk cache, atomic writes
+  rng.ts          seeded PRNG, scoped per beat
+  cost.ts         token and image spend, per run
+  keys.ts         keys saved from Settings, .env export and import
+  stages/         55 stages as plain functions; pipeline.ts composes them
+  providers/      gemini, geminitts, geminiimage, elevenlabs, chatterbox, flux,
+                  cloudflare, pexels, freesound, gutenberg, localvision, youtube, facebook
+  assets/         sound and icon libraries, envelope analysis
+  remotion/       compositions and templates for every render mode, bundled fonts
+  app/            local HTTP server and the app's page
+  store/          the local database (node:sqlite)
+  supabase/       optional accounts, preferences and history
+  commands/       thin CLI adapters over the stages
+  web/            the project website's source; built into web/
+tests/            vitest suites and their snapshots
 fixtures/
-  stub.beatsheet.json       hand-authored, lints clean, used by `plan` until stage 1-4 land
+  stub.beatsheet.json   hand-authored sheet, checked by `doctor` and the tests
+assets/               gitignored; fetched or built on first use
 ```
 
 ## License
