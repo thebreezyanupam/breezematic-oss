@@ -1543,7 +1543,7 @@
                 <option value="painterly">Painted illustration</option>
                 <option value="retro">Mid-century print</option>
               </select>
-              <p class="hint" style="margin-top:4px">Fixed across every panel, and across every video made with a preset.</p>
+              <p class="hint" style="margin-top:4px">Fixed across the whole video. Generated pictures are drawn in it; stock photos and clips are treated toward it.</p>
             </div>
             <p class="advhead" id="head-words" data-owns="subtitles captionsize">Subtitles</p>
             <div id="row-subtitles">
@@ -9682,7 +9682,7 @@ const MODES = {
   explainer: {
     label: 'Explainer (motion graphics)',
     blurb: 'An edited explainer, about a minute long: real pictures with a camera move, a counter, chart, timeline or definition on the beats that have the facts for one, word-by-word captions, a transition on every cut, sound on every graphic, and the subscribe plug wherever the script says it.',
-    shows: ['imgsrc', 'subtitles', 'captionsize'],
+    shows: ['imgsrc', 'artstyle', 'subtitles', 'captionsize'],
     sources: ['stock', 'mix', 'video', 'ai-free', 'ai'],
     prefer: 'stock',
   },

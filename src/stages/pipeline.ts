@@ -29,7 +29,7 @@ import {
   type BoardTheme,
 } from '../schema.js';
 import { adaptScript } from './adapt.js';
-import { generateBeatImages } from './imagegen.js';
+import { NO_TEXT, generateBeatImages, type ArtOverride } from './imagegen.js';
 import { generateSketches } from './sketch.js';
 import { assertConfigured as assertImageProvider } from '../providers/flux.js';
 import { assertConfigured as assertFreeImageProvider } from '../providers/cloudflare.js';
@@ -47,7 +47,7 @@ import { directStickman } from './action.js';
 import { phrasesOf, timedWar } from './stickworld.js';
 
 import { paintSettings, type StickBeat, type StickWorld } from './stickworld.js';
-import { generatePanels } from './storybook.js';
+import { ART_DIRECTION as STORY_ART, generatePanels } from './storybook.js';
 import { directGraphics } from './graphics.js';
 import { directPainting, writePaintCredits } from './paintdirect.js';
 import { readConnection } from '../providers/youtube.js';
@@ -798,6 +798,7 @@ async function generateImages(input: {
       count,
       force: input.options.force,
       engine: input.options.imageSource === 'ai-free' ? 'cloudflare' : 'fal',
+      ...explainerArt(input.options),
     });
     log.info(
       `images: ${result.generated} generated, ${result.prompts.length} across ${input.beatTexts.length} beats, $${result.usd.toFixed(4)}`,
@@ -807,6 +808,33 @@ async function generateImages(input: {
     log.warn(`images: generation failed (${(error as Error).message}); rendering without pictures`);
     return input.beatTexts.map(() => null);
   }
+}
+
+/**
+ * The explainer's art style, for the pictures it generates.
+ *
+ * "auto" keeps them photographs. Anything else is the storybook's own
+ * illustrator's direction, put at the front of every prompt where the image
+ * model weights hardest, so a video asked to be anime is drawn as anime
+ * rather than photographed and then filtered. Stock pictures get a matching
+ * treatment in the renderer instead (remotion/explainer/Media.tsx).
+ */
+function explainerArt(options: ProduceOptions): { art?: ArtOverride } {
+  const style = options.artStyle ?? 'auto';
+  if (options.mode !== 'explainer' || style === 'auto') return {};
+  const medium = STORY_ART[style];
+  if (medium === undefined) return {};
+  return {
+    art: {
+      medium,
+      direction: `Vertical 9:16 illustration, the subject large and in the middle third. ${NO_TEXT}`,
+      shape: 'short vertical explainer videos',
+      noun: 'illustrations',
+      lockedPalette: false,
+      width: env.FLUX_WIDTH,
+      height: env.FLUX_HEIGHT,
+    },
+  };
 }
 
 /** The first beat using each template — the cheapest set of stills that shows every look. */

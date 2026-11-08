@@ -2,10 +2,60 @@ import { AbsoluteFill, CanvasImage, OffthreadVideo, interpolate, useCurrentFrame
 import { chromaticAberration } from '@remotion/effects/chromatic-aberration';
 import { zoomBlur } from '@remotion/effects/zoom-blur';
 import { beatRng } from '../../rng.js';
-import type { Beat } from '../../schema.js';
+import type { ArtStyle, Beat } from '../../schema.js';
 import { isFootage, mediaSrc } from '../media.js';
 import { EX } from './theme.js';
 import type { Move, TransitionKind } from './transitions.js';
+
+/**
+ * The art style, applied to a picture that was not drawn in it.
+ *
+ * Generated pictures are drawn in the style (the prompt asks for it), so they
+ * get the ordinary grade. Photographs and clips cannot be redrawn, so they are
+ * treated toward it instead: graphite and ink for pencil and manga, a halftone
+ * screen for comic, a paper wash for watercolour, a print's limited inks for
+ * retro. A treatment, honestly -- it reads as the style, it is not a painting.
+ */
+type Treatment = { grade: string; texture: 'paper' | 'halftone' | 'grain' | null; mono: boolean };
+const ART_TREATMENT: Record<ArtStyle, Treatment | null> = {
+  auto: null,
+  flat: { grade: 'contrast(1.22) saturate(1.5) brightness(1.03)', texture: null, mono: false },
+  watercolour: { grade: 'contrast(0.86) saturate(0.72) brightness(1.14) blur(1.3px)', texture: 'paper', mono: false },
+  anime: { grade: 'contrast(1.16) saturate(1.38) brightness(1.05)', texture: null, mono: false },
+  comic: { grade: 'contrast(1.42) saturate(1.55) brightness(1.02)', texture: 'halftone', mono: false },
+  manga: { grade: 'grayscale(1) contrast(1.65) brightness(1.06)', texture: 'halftone', mono: true },
+  pencil: { grade: 'grayscale(1) contrast(1.32) brightness(1.16)', texture: 'paper', mono: true },
+  painterly: { grade: 'contrast(1.08) saturate(1.32) blur(0.45px)', texture: 'grain', mono: false },
+  retro: { grade: 'sepia(0.45) saturate(1.4) contrast(1.15) hue-rotate(-12deg)', texture: 'grain', mono: false },
+};
+
+const PAPER_TEXTURE =
+  "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='p'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.55 0 0 0 0 0.48 0 0 0 0 0.38 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23p)'/%3E%3C/svg%3E\")";
+
+const ArtTexture: React.FC<{ kind: Treatment['texture'] }> = ({ kind }) => {
+  if (kind === null) return null;
+  if (kind === 'halftone') {
+    return (
+      <AbsoluteFill
+        style={{
+          backgroundImage: 'radial-gradient(circle, rgba(0,0,0,0.5) 2.4px, transparent 3.1px)',
+          backgroundSize: '12px 12px',
+          mixBlendMode: 'multiply',
+          opacity: 0.8,
+        }}
+      />
+    );
+  }
+  return (
+    <AbsoluteFill
+      style={{
+        backgroundImage: PAPER_TEXTURE,
+        mixBlendMode: kind === 'paper' ? 'multiply' : 'soft-light',
+        opacity: kind === 'paper' ? 0.85 : 0.45,
+      }}
+    />
+  );
+};
 
 /**
  * The beat's picture, full bleed, with the camera move an editor would put on
@@ -36,7 +86,9 @@ export const Media: React.FC<{
   outOf: TransitionKind | null;
   /** The frame the beat's emphasis word is said on: the camera punches in on it. */
   punchFrame: number | null;
-}> = ({ beat, durationInFrames, treatment, move, into, outOf, punchFrame }) => {
+  /** The video's art style: a picture not drawn in it is treated toward it. */
+  art?: ArtStyle;
+}> = ({ beat, durationInFrames, treatment, move, into, outOf, punchFrame, art = 'auto' }) => {
   const frame = useCurrentFrame();
   const file = beat.background.image?.file ?? null;
   const t = interpolate(frame, [0, Math.max(1, durationInFrames)], [0, 1], { extrapolateRight: 'clamp' });
@@ -83,10 +135,14 @@ export const Media: React.FC<{
     || ((outOf === 'whip' || outOf === 'slide') && frame > durationInFrames - 8);
   const flashy = (into === 'flash' && frame < 6) || (outOf === 'flash' && frame > durationInFrames - 6);
 
+  // Generated pictures ("ai-...") were drawn in the style already.
+  const styled = file !== null && !file.startsWith('ai-') ? ART_TREATMENT[art] : null;
   const grade =
     treatment === 'plate'
-      ? 'blur(20px) brightness(0.42) saturate(1.1)'
-      : 'contrast(1.06) saturate(1.12) brightness(0.96)';
+      ? `blur(20px) brightness(0.42) saturate(${styled?.mono ? 0 : 1.1})`
+      : styled !== null
+        ? styled.grade
+        : 'contrast(1.06) saturate(1.12) brightness(0.96)';
   const style: React.CSSProperties = {
     position: 'absolute',
     inset: 0,
@@ -125,9 +181,14 @@ export const Media: React.FC<{
         />
       )}
       {treatment === 'sharp' && file !== null ? <Dust beat={beat} frame={frame} /> : null}
-      {/* The grade: lifted teal shadows, warm highlights, a vignette. */}
-      <AbsoluteFill style={{ backgroundColor: 'rgb(8, 30, 40)', mixBlendMode: 'screen', opacity: treatment === 'plate' ? 0.5 : 0.8 }} />
-      <AbsoluteFill style={{ backgroundColor: 'rgb(255, 240, 220)', mixBlendMode: 'multiply' }} />
+      {treatment === 'sharp' && styled !== null ? <ArtTexture kind={styled.texture} /> : null}
+      {/* The grade: lifted teal shadows, warm highlights, a vignette. A monochrome style keeps its greys. */}
+      {styled?.mono ? null : (
+        <>
+          <AbsoluteFill style={{ backgroundColor: 'rgb(8, 30, 40)', mixBlendMode: 'screen', opacity: treatment === 'plate' ? 0.5 : 0.8 }} />
+          <AbsoluteFill style={{ backgroundColor: 'rgb(255, 240, 220)', mixBlendMode: 'multiply' }} />
+        </>
+      )}
       <AbsoluteFill
         style={{
           background:

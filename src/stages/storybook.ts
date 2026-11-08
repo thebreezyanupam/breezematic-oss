@@ -54,7 +54,7 @@ const GUARDS = [
  * scene. Each of these names the line, the colour and the level of detail, so
  * the style survives being drawn twenty times.
  */
-const ART_DIRECTION: Record<string, string> = {
+export const ART_DIRECTION: Record<string, string> = {
   flat:
     'Flat vector cartoon illustration: thick even outlines, large areas of solid ' +
     'colour, simple rounded shapes, minimal shading, faces reduced to a few marks.',

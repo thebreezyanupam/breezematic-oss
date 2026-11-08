@@ -8,7 +8,7 @@ import {
   subscribeMoment,
   type TimedWord,
 } from '../../explainer.js';
-import { beatWords, isFootageFile, type Beat, type BeatSheet } from '../../schema.js';
+import { beatWords, isFootageFile, type ArtStyle, type Beat, type BeatSheet } from '../../schema.js';
 import { Grain } from '../Grain.js';
 import { Captions } from './Captions.js';
 import { GraphicLayer, KeywordPunch, wantsPlate } from './graphics.js';
@@ -62,7 +62,8 @@ const ExplainerBeat: React.FC<{
   durationInFrames: number;
   fontFamily: string;
   kicker: string;
-}> = ({ beat, index, into, outOf, direction, outDirection, words, durationInFrames, fontFamily, kicker }) => {
+  art: ArtStyle;
+}> = ({ beat, index, into, outOf, direction, outDirection, words, durationInFrames, fontFamily, kicker, art }) => {
   const frame = useCurrentFrame();
   const graphic = beat.graphic ?? (index === 0 ? { ...NO_GRAPHIC, kind: 'headline' as const } : NO_GRAPHIC);
   const move = moveAt(frame, durationInFrames, into, outOf, direction, outDirection);
@@ -92,6 +93,7 @@ const ExplainerBeat: React.FC<{
           into={into}
           outOf={outOf}
           punchFrame={punchFrame}
+          art={art}
         />
       </AbsoluteFill>
       <AbsoluteFill style={moveStyle(typeMove)}>
@@ -208,6 +210,7 @@ export const ExplainerVideo: React.FC<{ sheet: BeatSheet; fontFamily: string }> 
               durationInFrames={duration}
               fontFamily={fontFamily}
               kicker={kicker}
+              art={sheet.meta.artStyle}
             />
             {showCaptions && beat.graphic?.kind !== 'headline' && !(index === 0 && beat.graphic === null) ? (
               <Captions
