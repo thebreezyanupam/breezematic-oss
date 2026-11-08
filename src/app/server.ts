@@ -1218,12 +1218,12 @@ route('POST', /^\/api\/topics$/, async (req, res) => {
  */
 route('POST', /^\/api\/script\/adapt$/, async (req, res) => {
   if (await isLockedOut()) throw new HttpError(401, 'sign in to continue');
-  const body = (await readBody(req)) as { script?: unknown; force?: unknown };
+  const body = (await readBody(req)) as { script?: unknown; force?: unknown; keepAll?: unknown };
   const script = typeof body.script === 'string' ? body.script : '';
   if (script.trim() === '') throw new HttpError(400, 'there is no script to prepare');
   if (script.length > 8000) throw new HttpError(400, 'script is too long (8000 characters max)');
 
-  sendJson(res, 200, await adaptScript({ text: script, force: body.force === true }));
+  sendJson(res, 200, await adaptScript({ text: script, force: body.force === true, keepAll: body.keepAll === true }));
 });
 
 route('POST', /^\/api\/runs$/, async (req, res) => {
@@ -1602,6 +1602,7 @@ route('POST', /^\/api\/runs$/, async (req, res) => {
     ...(seed !== undefined ? { seed: seed as number } : {}),
     ...(typeof script === 'string' && script.trim() !== '' ? { script } : {}),
     ...(body['adapt'] === false ? { adapt: false } : {}),
+    ...(body['keepAll'] === true ? { keepAll: true } : {}),
     ...(character !== undefined ? { character: character as string } : {}),
     ...(ttsProvider !== undefined ? { ttsProvider: ttsProvider as string } : {}),
     ...(subtitles !== undefined ? { subtitles: subtitles as SubtitleMode } : {}),

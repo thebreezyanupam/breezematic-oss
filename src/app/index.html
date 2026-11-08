@@ -2941,7 +2941,8 @@ function runOptions() {
     ...(script === '' ? {} : { script }),
     // Your words, all of them: a Short can run to three minutes, and a joke
     // script loses its setups first when it is cut to fit one.
-    ...(script !== '' && $('opt-keepall').value === 'keep' ? { adapt: false } : {}),
+    // Keep every word: still shaped into beats, nothing dropped.
+    ...(script !== '' && $('opt-keepall').value === 'keep' ? { keepAll: true } : {}),
     ...($('brief').value.trim() === '' ? {} : { brief: $('brief').value.trim() }),
     effect: $('opt-effect').value,
     imagery: $('opt-imagery').value,
@@ -5237,7 +5238,7 @@ async function adapt() {
   $('btn-adapt').classList.add('working');
   $('btn-adapt').textContent = 'Reading…';
   try {
-    const result = await api('POST', '/api/script/adapt', { script });
+    const result = await api('POST', '/api/script/adapt', { script, keepAll: $('opt-keepall').value === 'keep' });
     $('script-input').value = result.text;
     const seconds = Math.round(result.estimatedMs / 1000);
     const parts = [`${result.beats} beats, ${result.words} words, about ${seconds}s`];

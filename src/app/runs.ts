@@ -85,6 +85,8 @@ export type StartOptions = {
   /** Hand-written narration for plan runs; produce and stills read from disk. */
   script?: string;
   adapt?: boolean;
+  /** A pasted script is split into beats but nothing is dropped. */
+  keepAll?: boolean;
   character?: string;
   ttsProvider?: string;
   /** What it is written and read in; 'en' when unsaid. */
@@ -403,6 +405,7 @@ async function executePlan(run: RunRecord, options: StartOptions): Promise<unkno
     ...(options.seed !== undefined ? { seed: options.seed } : {}),
     ...(options.script !== undefined ? { script: options.script } : {}),
     ...(options.adapt !== undefined ? { adapt: options.adapt } : {}),
+    ...(options.keepAll === true ? { keepAll: true } : {}),
     ...(options.character !== undefined ? { character: options.character } : {}),
     ...(options.ttsProvider !== undefined ? { ttsProvider: options.ttsProvider } : {}),
     ...(options.language !== undefined ? { language: options.language } : {}),

@@ -79,7 +79,7 @@ const responseSchema = z
   })
   .passthrough();
 
-function buildPrompt(text: string, words: number): string {
+function buildPrompt(text: string, words: number, keepAll = false): string {
   const overLong = words > PLAN.pastedMaxWords;
 
   return `Here is a script, exactly as its writer typed it:
@@ -96,9 +96,15 @@ Rules:
 1. Never change a word. No synonyms, no reordering, no added connectives, no fixed grammar, no summarising. Every word you return must appear in the script above, in the same order.
 2. You may only: break the text into beats, drop whole passages when rule 5 requires it, and adjust punctuation and capitalisation at a new beat's edge.
 3. Each beat is one clause or short sentence of at most ${PLAN.pastedWordsPerBeatMax} words that reads as a single unit on a card. Break at sentence ends first, then at commas, semicolons, colons, dashes, and last at "and", "but", "because", "so", "which", "that".
-4. Return between ${PLAN.pastedBeatsMin} and ${PLAN.pastedBeatsMax} beats. The first beat is the hook: it must be the script's own opening, not something moved up from later.
+4. ${
+    keepAll
+      ? `Return as many beats as the script needs, about one for every ${PLAN.pastedWordsPerBeatMax} words.`
+      : `Return between ${PLAN.pastedBeatsMin} and ${PLAN.pastedBeatsMax} beats.`
+  } The first beat is the hook: it must be the script's own opening, not something moved up from later.
 5. ${
-    overLong
+    keepAll
+      ? `The writer wants every word read. Drop nothing at all, however long it runs.`
+      : overLong
       ? `The script is too long for a video under a minute. Bring the total to between ${Math.round(PLAN.pastedMaxWords * 0.8)} and ${PLAN.pastedMaxWords} words by dropping whole sentences — take them from the least load-bearing middle, keep the opening and the ending intact, and cut no more than you have to. Land near the top of that range, not the bottom.`
       : `The script already fits. Drop nothing at all.`
   }
@@ -218,7 +224,7 @@ export function unwrap(text: string): string[] {
  * The splitter that runs with no model at all, and the arbiter when a model
  * comes back having rewritten something. Deterministic and offline.
  */
-export function adaptLocally(text: string): { beats: string[]; truncated: boolean } {
+export function adaptLocally(text: string, keepAll = false): { beats: string[]; truncated: boolean } {
   const sentences = unwrap(text).flatMap((block) =>
     block.split(SENTENCE_END).map((piece) => piece.trim()).filter((piece) => piece !== ''),
   );
@@ -243,6 +249,8 @@ export function adaptLocally(text: string): { beats: string[]; truncated: boolea
     ];
   }
 
+  // Keeping every word means no budget: the beats are the whole script.
+  if (keepAll) return { beats: pieces, truncated: false };
   const { beats, truncated } = trimToBudget(pieces);
   return { beats: beats.slice(0, PLAN.pastedBeatsMax), truncated: truncated || beats.length > PLAN.pastedBeatsMax };
 }
@@ -273,7 +281,10 @@ function assemble(
 export async function adaptScript(options: {
   text: string;
   force: boolean;
+  /** Split into beats but drop nothing, even past a minute. */
+  keepAll?: boolean;
 }): Promise<AdaptedScript> {
+  const keepAll = options.keepAll === true;
   const original = options.text.replace(/\r\n/g, '\n').trim();
   // The marks are the writer's own hints; they are not words, and comparing
   // with them in place would fail the subsequence check on the first beat.
@@ -283,7 +294,7 @@ export async function adaptScript(options: {
 
   if (words === 0) throw new Error('there is no script to prepare');
 
-  const local = adaptLocally(bare);
+  const local = adaptLocally(bare, keepAll);
   const localResult = assemble(local.beats, {
     truncated: local.truncated,
     changed: local.beats.join('\n') !== original,
@@ -307,12 +318,12 @@ export async function adaptScript(options: {
     cache.setForce(options.force);
     cached = await cache.json<Cached>(
       'script-adapt',
-      { promptVersion: ADAPT_PROMPT_VERSION, model: MODELS.llm.script, text: bare },
+      { promptVersion: ADAPT_PROMPT_VERSION, model: MODELS.llm.script, text: bare, keepAll },
       async () => {
         const response = await generate({
           model: MODELS.llm.script,
           systemInstruction: SYSTEM_INSTRUCTION,
-          prompt: buildPrompt(bare, words),
+          prompt: buildPrompt(bare, words, keepAll),
           // Shaping, not writing: the same script should shape the same way.
           temperature: 0.2,
           seed: 7,
@@ -348,7 +359,7 @@ export async function adaptScript(options: {
       mark(beats[index] ?? '', typeof beat.emphasis_word === 'string' ? beat.emphasis_word : ''),
     );
 
-    const failures = check(beats, source, words);
+    const failures = check(beats, source, words, keepAll);
     if (failures.length > 0) {
       log.warn(`script: preparation rejected (${failures.join('; ')}); split it here instead`);
       return { ...localResult, usd: spent };
@@ -373,13 +384,18 @@ export async function adaptScript(options: {
 }
 
 /** Everything that disqualifies a model's shaping, named so the log can say why. */
-function check(beats: readonly string[], source: readonly string[], words: number): string[] {
+function check(beats: readonly string[], source: readonly string[], words: number, keepAll = false): string[] {
   const failures: string[] = [];
   const produced = beats.flatMap((beat) => tokens(beat));
 
+  if (!isSubsequence(produced, source)) failures.push('the wording was changed');
+  // Asked to keep everything, the only test that matters is that it did.
+  if (keepAll) {
+    if (produced.length < words) failures.push(`${words - produced.length} words dropped when every word was to be kept`);
+    return failures;
+  }
   if (beats.length < PLAN.pastedBeatsMin) failures.push(`only ${beats.length} beats`);
   if (beats.length > PLAN.pastedBeatsMax) failures.push(`${beats.length} beats, over the limit`);
-  if (!isSubsequence(produced, source)) failures.push('the wording was changed');
   if (produced.length > PLAN.pastedMaxWords) {
     failures.push(`${produced.length} words, still over ${PLAN.pastedMaxWords}`);
   }

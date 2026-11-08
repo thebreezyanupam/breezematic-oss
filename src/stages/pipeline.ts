@@ -244,6 +244,8 @@ export type ProduceOptions = {
   script?: string;
   /** Shape a pasted script into beats before it is spoken. On unless refused. */
   adapt?: boolean;
+  /** Shape a pasted script into beats without dropping a word. */
+  keepAll?: boolean;
   /** Who reads it: a roster id from src/voices.ts. */
   character?: string;
   /** Which engine reads it: 'kokoro' (local, free) or 'gemini' (hosted). */
@@ -769,7 +771,7 @@ async function prepareScript(options: ProduceOptions): Promise<string> {
   const text = options.script ?? '';
   if (options.adapt === false) return text;
 
-  const adapted = await adaptScript({ text, force: options.force });
+  const adapted = await adaptScript({ text, force: options.force, keepAll: options.keepAll === true });
   const seconds = (adapted.estimatedMs / 1000).toFixed(0);
   log.info(
     `script: your ${adapted.words} words in ${adapted.beats} beats, about ${seconds}s read aloud` +
