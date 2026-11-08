@@ -190,9 +190,32 @@
     h1 { font-size: 28px; }
     .lead { font-size: 16px; }
   }
+
+  /* loading screen: a frame rendering, then out of the way */
+  .loader { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; background: var(--bg); transition: opacity .4s ease, visibility .4s; animation: loader-out .4s 4s forwards; }
+  .loader.done { opacity: 0; visibility: hidden; }
+  .loader-box { display: grid; justify-items: center; gap: 14px; }
+  .loader-frame { position: relative; width: 44px; height: 78px; border: 2px solid var(--ink); border-radius: 7px; display: grid; place-items: center; overflow: hidden; }
+  .loader-frame::after { content: ''; position: absolute; inset: 0; background: linear-gradient(180deg, transparent, var(--accent-soft)); transform: translateY(100%); animation: loader-fill 1.4s ease-in-out infinite; }
+  .loader-frame svg { position: relative; z-index: 1; width: 14px; height: 14px; color: var(--ink); }
+  .loader-track { position: relative; width: 120px; height: 3px; border-radius: 2px; background: var(--line-2); overflow: hidden; }
+  .loader-track i { position: absolute; top: 0; bottom: 0; left: 0; width: 34%; border-radius: inherit; background: var(--accent); animation: loader-head 1.4s ease-in-out infinite; }
+  .loader-label { font: 500 11.5px var(--mono); color: var(--ink-3); letter-spacing: .04em; }
+  @keyframes loader-fill { 50% { transform: translateY(0); } 100% { transform: translateY(-100%); } }
+  @keyframes loader-head { from { transform: translateX(-100%); } to { transform: translateX(300%); } }
+  @keyframes loader-out { to { opacity: 0; visibility: hidden; } }
+  @media (prefers-reduced-motion: reduce) { .loader-frame::after, .loader-track i { animation: none; } }
 </style>
 </head>
 <body>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-box">
+    <div class="loader-frame"><svg viewBox="0 0 12 12"><path d="M3 1.5v9l7.5-4.5z" fill="currentColor"/></svg></div>
+    <div class="loader-track"><i></i></div>
+    <div class="loader-label">Rendering…</div>
+  </div>
+</div>
 
 <header class="top">
   <button class="menu" id="menu" type="button" aria-expanded="false" aria-controls="side">Menu</button>
@@ -434,6 +457,12 @@ pnpm cli mix --topic "How honeybees make honey"</pre></div>
 </div>
 
 <script>
+  // The loading screen leaves once the page and its picture are in, after a short beat.
+  const loader = document.getElementById('loader');
+  const shownAt = performance.now();
+  const hideLoader = () => setTimeout(() => loader.classList.add('done'), Math.max(0, 700 - (performance.now() - shownAt)));
+  if (document.readyState === 'complete') hideLoader(); else addEventListener('load', hideLoader);
+
   // The sidebar marks the section you are reading.
   const links = [...document.querySelectorAll('aside a')];
   const targets = links.map((a) => document.querySelector(a.getAttribute('href'))).filter(Boolean);
