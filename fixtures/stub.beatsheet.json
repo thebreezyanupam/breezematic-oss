@@ -1,0 +1,1631 @@
+{
+  "beats": [
+    {
+      "background": {
+        "blurPx": 30,
+        "clipId": "dark-city-01",
+        "image": null,
+        "inPointMs": 1200,
+        "scrimOpacity": 0.58
+      },
+      "emphasisWordIndex": 2,
+      "endMs": 2000,
+      "id": "b01",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "The Dutch refused"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "to dub their TV."
+        }
+      ],
+      "motion": {
+        "amount": 0.24,
+        "kind": "push"
+      },
+      "startMs": 0,
+      "template": "word-punch"
+    },
+    {
+      "background": {
+        "blurPx": 34,
+        "clipId": "tense-static-02",
+        "image": null,
+        "inPointMs": 2100,
+        "scrimOpacity": 0.62
+      },
+      "emphasisWordIndex": 1,
+      "endMs": 4500,
+      "id": "b02",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Almost every country in Europe"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "overdubbed foreign shows."
+        }
+      ],
+      "motion": {
+        "amount": 0.18,
+        "kind": "pan-l"
+      },
+      "startMs": 2000,
+      "template": "line-stack"
+    },
+    {
+      "background": {
+        "blurPx": 38,
+        "clipId": "clean-lines-03",
+        "image": null,
+        "inPointMs": 3000,
+        "scrimOpacity": 0.66
+      },
+      "emphasisWordIndex": 3,
+      "endMs": 7000,
+      "id": "b03",
+      "lines": [
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "The Netherlands kept"
+        },
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "90% subtitled."
+        }
+      ],
+      "motion": {
+        "amount": 0.3,
+        "kind": "pull"
+      },
+      "startMs": 4500,
+      "template": "stat-slam"
+    },
+    {
+      "background": {
+        "blurPx": 32,
+        "clipId": "warm-grain-04",
+        "image": null,
+        "inPointMs": 3900,
+        "scrimOpacity": 0.6
+      },
+      "emphasisWordIndex": 4,
+      "endMs": 9500,
+      "id": "b04",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "It started as a money problem,"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "not a culture one."
+        }
+      ],
+      "motion": {
+        "amount": 0.22,
+        "kind": "pan-r"
+      },
+      "startMs": 7000,
+      "template": "quote-block"
+    },
+    {
+      "background": {
+        "blurPx": 30,
+        "clipId": "dark-city-01",
+        "image": null,
+        "inPointMs": 4800,
+        "scrimOpacity": 0.58
+      },
+      "emphasisWordIndex": 4,
+      "endMs": 12000,
+      "id": "b05",
+      "lines": [
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "Dubbing one film cost"
+        },
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "10x what subtitles cost."
+        }
+      ],
+      "motion": {
+        "amount": 0.24,
+        "kind": "push"
+      },
+      "startMs": 9500,
+      "template": "reveal-mask"
+    },
+    {
+      "background": {
+        "blurPx": 34,
+        "clipId": "tense-static-02",
+        "image": null,
+        "inPointMs": 5700,
+        "scrimOpacity": 0.62
+      },
+      "emphasisWordIndex": 7,
+      "endMs": 14500,
+      "id": "b06",
+      "lines": [
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "The market was small."
+        },
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "The budgets were smaller."
+        }
+      ],
+      "motion": {
+        "amount": 0.18,
+        "kind": "pan-r"
+      },
+      "startMs": 12000,
+      "template": "line-stack"
+    },
+    {
+      "background": {
+        "blurPx": 38,
+        "clipId": "clean-lines-03",
+        "image": null,
+        "inPointMs": 6600,
+        "scrimOpacity": 0.66
+      },
+      "emphasisWordIndex": 0,
+      "endMs": 17000,
+      "id": "b07",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Three things followed"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "from one accounting decision."
+        }
+      ],
+      "motion": {
+        "amount": 0.3,
+        "kind": "pull"
+      },
+      "startMs": 14500,
+      "template": "countdown"
+    },
+    {
+      "background": {
+        "blurPx": 32,
+        "clipId": "warm-grain-04",
+        "image": null,
+        "inPointMs": 7500,
+        "scrimOpacity": 0.6
+      },
+      "emphasisWordIndex": 3,
+      "endMs": 19500,
+      "id": "b08",
+      "lines": [
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "Kids grew up"
+        },
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "reading their television."
+        }
+      ],
+      "motion": {
+        "amount": 0.22,
+        "kind": "pan-l"
+      },
+      "startMs": 17000,
+      "template": "word-punch"
+    },
+    {
+      "background": {
+        "blurPx": 30,
+        "clipId": "dark-city-01",
+        "image": null,
+        "inPointMs": 8400,
+        "scrimOpacity": 0.58
+      },
+      "emphasisWordIndex": 1,
+      "endMs": 22000,
+      "id": "b09",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Today 90% of Dutch"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "adults speak English."
+        }
+      ],
+      "motion": {
+        "amount": 0.24,
+        "kind": "push"
+      },
+      "startMs": 19500,
+      "template": "stat-slam"
+    },
+    {
+      "background": {
+        "blurPx": 34,
+        "clipId": "tense-static-02",
+        "image": null,
+        "inPointMs": 9300,
+        "scrimOpacity": 0.62
+      },
+      "emphasisWordIndex": 2,
+      "endMs": 24500,
+      "id": "b10",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Cheapness became fluency."
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "Nobody planned it."
+        }
+      ],
+      "motion": {
+        "amount": 0.18,
+        "kind": "pan-l"
+      },
+      "startMs": 22000,
+      "template": "line-stack"
+    },
+    {
+      "background": {
+        "blurPx": 38,
+        "clipId": "clean-lines-03",
+        "image": null,
+        "inPointMs": 10200,
+        "scrimOpacity": 0.66
+      },
+      "emphasisWordIndex": 0,
+      "endMs": 27000,
+      "id": "b11",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "But the interesting part"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "is what it did to comedy."
+        }
+      ],
+      "motion": {
+        "amount": 0.3,
+        "kind": "pull"
+      },
+      "startMs": 24500,
+      "template": "reveal-mask"
+    },
+    {
+      "background": {
+        "blurPx": 32,
+        "clipId": "warm-grain-04",
+        "image": null,
+        "inPointMs": 11100,
+        "scrimOpacity": 0.6
+      },
+      "emphasisWordIndex": 0,
+      "endMs": 29500,
+      "id": "b12",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Timing survives translation."
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "Dubbed jokes rarely do."
+        }
+      ],
+      "motion": {
+        "amount": 0.22,
+        "kind": "pan-r"
+      },
+      "startMs": 27000,
+      "template": "quote-block"
+    },
+    {
+      "background": {
+        "blurPx": 30,
+        "clipId": "dark-city-01",
+        "image": null,
+        "inPointMs": 12000,
+        "scrimOpacity": 0.58
+      },
+      "emphasisWordIndex": 3,
+      "endMs": 32000,
+      "id": "b13",
+      "lines": [
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "Dutch TV exported"
+        },
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "4x more than it imported."
+        }
+      ],
+      "motion": {
+        "amount": 0.24,
+        "kind": "push"
+      },
+      "startMs": 29500,
+      "template": "stat-slam"
+    },
+    {
+      "background": {
+        "blurPx": 34,
+        "clipId": "tense-static-02",
+        "image": null,
+        "inPointMs": 12900,
+        "scrimOpacity": 0.62
+      },
+      "emphasisWordIndex": 6,
+      "endMs": 34500,
+      "id": "b14",
+      "lines": [
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "A budget cut turned into"
+        },
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "a national advantage."
+        }
+      ],
+      "motion": {
+        "amount": 0.18,
+        "kind": "pan-r"
+      },
+      "startMs": 32000,
+      "template": "line-stack"
+    },
+    {
+      "background": {
+        "blurPx": 38,
+        "clipId": "clean-lines-03",
+        "image": null,
+        "inPointMs": 13800,
+        "scrimOpacity": 0.66
+      },
+      "emphasisWordIndex": 0,
+      "endMs": 37000,
+      "id": "b15",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Constraints do that more often"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "than money does."
+        }
+      ],
+      "motion": {
+        "amount": 0.3,
+        "kind": "pull"
+      },
+      "startMs": 34500,
+      "template": "word-punch"
+    },
+    {
+      "background": {
+        "blurPx": 32,
+        "clipId": "warm-grain-04",
+        "image": null,
+        "inPointMs": 14700,
+        "scrimOpacity": 0.6
+      },
+      "emphasisWordIndex": 2,
+      "endMs": 38500,
+      "id": "b16",
+      "lines": [
+        {
+          "emphasis": true,
+          "scale": 1.25,
+          "text": "Subtitles were never"
+        },
+        {
+          "emphasis": false,
+          "scale": 1,
+          "text": "the compromise."
+        }
+      ],
+      "motion": {
+        "amount": 0.22,
+        "kind": "pan-l"
+      },
+      "startMs": 37000,
+      "template": "reveal-mask"
+    }
+  ],
+  "meta": {
+    "durationMs": 38500,
+    "effect": "gradient",
+    "fps": 30,
+    "imagery": "off",
+    "seed": 1337,
+    "slug": "why-the-dutch-never-dubbed-their-tv",
+    "style": "editorial",
+    "topic": "why the Dutch never dubbed their TV"
+  },
+  "music": {
+    "beatGridMs": [
+      0,
+      500,
+      1000,
+      1500,
+      2000,
+      2500,
+      3000,
+      3500,
+      4000,
+      4500,
+      5000,
+      5500,
+      6000,
+      6500,
+      7000,
+      7500,
+      8000,
+      8500,
+      9000,
+      9500,
+      10000,
+      10500,
+      11000,
+      11500,
+      12000,
+      12500,
+      13000,
+      13500,
+      14000,
+      14500,
+      15000,
+      15500,
+      16000,
+      16500,
+      17000,
+      17500,
+      18000,
+      18500,
+      19000,
+      19500,
+      20000,
+      20500,
+      21000,
+      21500,
+      22000,
+      22500,
+      23000,
+      23500,
+      24000,
+      24500,
+      25000,
+      25500,
+      26000,
+      26500,
+      27000,
+      27500,
+      28000,
+      28500,
+      29000,
+      29500,
+      30000,
+      30500,
+      31000,
+      31500,
+      32000,
+      32500,
+      33000,
+      33500,
+      34000,
+      34500,
+      35000,
+      35500,
+      36000,
+      36500,
+      37000,
+      37500,
+      38000,
+      38500
+    ],
+    "bpm": 120,
+    "startOffsetMs": 0,
+    "trackPath": "assets/music/steady-pulse-120.wav"
+  },
+  "script": {
+    "body": "Almost every country in Europe overdubbed foreign shows. The Netherlands kept 90% subtitled. It started as a money problem, not a culture one. Dubbing one film cost 10x what subtitles cost. The market was small. The budgets were smaller. Three things followed from one accounting decision. Kids grew up reading their television. Today 90% of Dutch adults speak English. Cheapness became fluency. Nobody planned it. But the interesting part is what it did to comedy. Timing survives translation. Dubbed jokes rarely do. Dutch TV exported 4x more than it imported. A budget cut turned into a national advantage. Constraints do that more often than money does. Subtitles were never the compromise.",
+    "fullText": "The Dutch refused to dub their TV. Almost every country in Europe overdubbed foreign shows. The Netherlands kept 90% subtitled. It started as a money problem, not a culture one. Dubbing one film cost 10x what subtitles cost. The market was small. The budgets were smaller. Three things followed from one accounting decision. Kids grew up reading their television. Today 90% of Dutch adults speak English. Cheapness became fluency. Nobody planned it. But the interesting part is what it did to comedy. Timing survives translation. Dubbed jokes rarely do. Dutch TV exported 4x more than it imported. A budget cut turned into a national advantage. Constraints do that more often than money does. Subtitles were never the compromise.",
+    "hook": "The Dutch refused to dub their TV.",
+    "pronunciation": [
+      {
+        "display": "90%",
+        "rule": "percent",
+        "spoken": "ninety percent"
+      },
+      {
+        "display": "90%",
+        "rule": "percent",
+        "spoken": "ninety percent"
+      },
+      {
+        "display": "10x",
+        "rule": "multiplier",
+        "spoken": "ten times"
+      },
+      {
+        "display": "4x",
+        "rule": "multiplier",
+        "spoken": "four times"
+      },
+      {
+        "display": "TV",
+        "rule": "acronym",
+        "spoken": "T V"
+      },
+      {
+        "display": "TV",
+        "rule": "acronym",
+        "spoken": "T V"
+      }
+    ],
+    "spokenText": "The Dutch refused to dub their T V. Almost every country in Europe overdubbed foreign shows. The Netherlands kept ninety percent subtitled. It started as a money problem, not a culture one. Dubbing one film cost ten times what subtitles cost. The market was small. The budgets were smaller. Three things followed from one accounting decision. Kids grew up reading their television. Today ninety percent of Dutch adults speak English. Cheapness became fluency. Nobody planned it. But the interesting part is what it did to comedy. Timing survives translation. Dubbed jokes rarely do. Dutch T V exported four times more than it imported. A budget cut turned into a national advantage. Constraints do that more often than money does. Subtitles were never the compromise."
+  },
+  "sfx": [
+    {
+      "atMs": 0,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 470,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0
+    },
+    {
+      "atMs": 2000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 2000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1
+    },
+    {
+      "atMs": 2140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 2298,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1
+    },
+    {
+      "atMs": 4500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 4500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 2
+    },
+    {
+      "atMs": 4640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 5690,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2
+    },
+    {
+      "atMs": 7000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 7000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 3
+    },
+    {
+      "atMs": 7140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 7952,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0
+    },
+    {
+      "atMs": 9500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 9500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 0
+    },
+    {
+      "atMs": 9640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 10558,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1
+    },
+    {
+      "atMs": 12000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 12000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1
+    },
+    {
+      "atMs": 12140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 14083,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2
+    },
+    {
+      "atMs": 14500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 14500,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0
+    },
+    {
+      "atMs": 14500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 2
+    },
+    {
+      "atMs": 14640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 17000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 17000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 3
+    },
+    {
+      "atMs": 17140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 18190,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1
+    },
+    {
+      "atMs": 19500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 19500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 0
+    },
+    {
+      "atMs": 19640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 19798,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2
+    },
+    {
+      "atMs": 22000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 22000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1
+    },
+    {
+      "atMs": 22140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 22793,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0
+    },
+    {
+      "atMs": 23300,
+      "cue": "riser",
+      "gainDb": -14,
+      "variant": 0
+    },
+    {
+      "atMs": 24500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 24500,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1
+    },
+    {
+      "atMs": 24500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 2
+    },
+    {
+      "atMs": 24640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 27000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 27000,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2
+    },
+    {
+      "atMs": 27000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 3
+    },
+    {
+      "atMs": 27140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 29500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 29500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 0
+    },
+    {
+      "atMs": 29640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 30452,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0
+    },
+    {
+      "atMs": 32000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 32000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1
+    },
+    {
+      "atMs": 32140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 33785,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1
+    },
+    {
+      "atMs": 34500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 34500,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2
+    },
+    {
+      "atMs": 34500,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 2
+    },
+    {
+      "atMs": 34640,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 37000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0
+    },
+    {
+      "atMs": 37000,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 3
+    },
+    {
+      "atMs": 37140,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1
+    },
+    {
+      "atMs": 37552,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0
+    }
+  ],
+  "version": 5,
+  "voice": {
+    "audioPath": "work/why-the-dutch-never-dubbed-their-tv/voice.wav",
+    "provider": "kokoro",
+    "voiceId": "af_heart"
+  },
+  "words": [
+    {
+      "endMs": 195,
+      "startMs": 0,
+      "text": "The"
+    },
+    {
+      "endMs": 430,
+      "startMs": 235,
+      "text": "Dutch"
+    },
+    {
+      "endMs": 665,
+      "startMs": 470,
+      "text": "refused"
+    },
+    {
+      "endMs": 900,
+      "startMs": 705,
+      "text": "to"
+    },
+    {
+      "endMs": 1135,
+      "startMs": 940,
+      "text": "dub"
+    },
+    {
+      "endMs": 1370,
+      "startMs": 1175,
+      "text": "their"
+    },
+    {
+      "endMs": 1605,
+      "startMs": 1410,
+      "text": "T"
+    },
+    {
+      "endMs": 1840,
+      "startMs": 1645,
+      "text": "V."
+    },
+    {
+      "endMs": 2258,
+      "startMs": 2000,
+      "text": "Almost"
+    },
+    {
+      "endMs": 2555,
+      "startMs": 2298,
+      "text": "every"
+    },
+    {
+      "endMs": 2853,
+      "startMs": 2595,
+      "text": "country"
+    },
+    {
+      "endMs": 3150,
+      "startMs": 2893,
+      "text": "in"
+    },
+    {
+      "endMs": 3448,
+      "startMs": 3190,
+      "text": "Europe"
+    },
+    {
+      "endMs": 3745,
+      "startMs": 3488,
+      "text": "overdubbed"
+    },
+    {
+      "endMs": 4043,
+      "startMs": 3785,
+      "text": "foreign"
+    },
+    {
+      "endMs": 4340,
+      "startMs": 4083,
+      "text": "shows."
+    },
+    {
+      "endMs": 4857,
+      "startMs": 4500,
+      "text": "The"
+    },
+    {
+      "endMs": 5253,
+      "startMs": 4897,
+      "text": "Netherlands"
+    },
+    {
+      "endMs": 5650,
+      "startMs": 5293,
+      "text": "kept"
+    },
+    {
+      "endMs": 6047,
+      "startMs": 5690,
+      "text": "ninety"
+    },
+    {
+      "endMs": 6443,
+      "startMs": 6087,
+      "text": "percent"
+    },
+    {
+      "endMs": 6840,
+      "startMs": 6483,
+      "text": "subtitled."
+    },
+    {
+      "endMs": 7198,
+      "startMs": 7000,
+      "text": "It"
+    },
+    {
+      "endMs": 7436,
+      "startMs": 7238,
+      "text": "started"
+    },
+    {
+      "endMs": 7674,
+      "startMs": 7476,
+      "text": "as"
+    },
+    {
+      "endMs": 7912,
+      "startMs": 7714,
+      "text": "a"
+    },
+    {
+      "endMs": 8150,
+      "startMs": 7952,
+      "text": "money"
+    },
+    {
+      "endMs": 8388,
+      "startMs": 8190,
+      "text": "problem,"
+    },
+    {
+      "endMs": 8626,
+      "startMs": 8428,
+      "text": "not"
+    },
+    {
+      "endMs": 8864,
+      "startMs": 8666,
+      "text": "a"
+    },
+    {
+      "endMs": 9102,
+      "startMs": 8904,
+      "text": "culture"
+    },
+    {
+      "endMs": 9340,
+      "startMs": 9142,
+      "text": "one."
+    },
+    {
+      "endMs": 9724,
+      "startMs": 9500,
+      "text": "Dubbing"
+    },
+    {
+      "endMs": 9989,
+      "startMs": 9764,
+      "text": "one"
+    },
+    {
+      "endMs": 10253,
+      "startMs": 10029,
+      "text": "film"
+    },
+    {
+      "endMs": 10518,
+      "startMs": 10293,
+      "text": "cost"
+    },
+    {
+      "endMs": 10782,
+      "startMs": 10558,
+      "text": "ten"
+    },
+    {
+      "endMs": 11047,
+      "startMs": 10822,
+      "text": "times"
+    },
+    {
+      "endMs": 11311,
+      "startMs": 11087,
+      "text": "what"
+    },
+    {
+      "endMs": 11576,
+      "startMs": 11351,
+      "text": "subtitles"
+    },
+    {
+      "endMs": 11840,
+      "startMs": 11616,
+      "text": "cost."
+    },
+    {
+      "endMs": 12258,
+      "startMs": 12000,
+      "text": "The"
+    },
+    {
+      "endMs": 12555,
+      "startMs": 12298,
+      "text": "market"
+    },
+    {
+      "endMs": 12853,
+      "startMs": 12595,
+      "text": "was"
+    },
+    {
+      "endMs": 13150,
+      "startMs": 12893,
+      "text": "small."
+    },
+    {
+      "endMs": 13448,
+      "startMs": 13190,
+      "text": "The"
+    },
+    {
+      "endMs": 13745,
+      "startMs": 13488,
+      "text": "budgets"
+    },
+    {
+      "endMs": 14043,
+      "startMs": 13785,
+      "text": "were"
+    },
+    {
+      "endMs": 14340,
+      "startMs": 14083,
+      "text": "smaller."
+    },
+    {
+      "endMs": 14800,
+      "startMs": 14500,
+      "text": "Three"
+    },
+    {
+      "endMs": 15140,
+      "startMs": 14840,
+      "text": "things"
+    },
+    {
+      "endMs": 15480,
+      "startMs": 15180,
+      "text": "followed"
+    },
+    {
+      "endMs": 15820,
+      "startMs": 15520,
+      "text": "from"
+    },
+    {
+      "endMs": 16160,
+      "startMs": 15860,
+      "text": "one"
+    },
+    {
+      "endMs": 16500,
+      "startMs": 16200,
+      "text": "accounting"
+    },
+    {
+      "endMs": 16840,
+      "startMs": 16540,
+      "text": "decision."
+    },
+    {
+      "endMs": 17357,
+      "startMs": 17000,
+      "text": "Kids"
+    },
+    {
+      "endMs": 17753,
+      "startMs": 17397,
+      "text": "grew"
+    },
+    {
+      "endMs": 18150,
+      "startMs": 17793,
+      "text": "up"
+    },
+    {
+      "endMs": 18547,
+      "startMs": 18190,
+      "text": "reading"
+    },
+    {
+      "endMs": 18943,
+      "startMs": 18587,
+      "text": "their"
+    },
+    {
+      "endMs": 19340,
+      "startMs": 18983,
+      "text": "television."
+    },
+    {
+      "endMs": 19758,
+      "startMs": 19500,
+      "text": "Today"
+    },
+    {
+      "endMs": 20055,
+      "startMs": 19798,
+      "text": "ninety"
+    },
+    {
+      "endMs": 20353,
+      "startMs": 20095,
+      "text": "percent"
+    },
+    {
+      "endMs": 20650,
+      "startMs": 20393,
+      "text": "of"
+    },
+    {
+      "endMs": 20948,
+      "startMs": 20690,
+      "text": "Dutch"
+    },
+    {
+      "endMs": 21245,
+      "startMs": 20988,
+      "text": "adults"
+    },
+    {
+      "endMs": 21543,
+      "startMs": 21285,
+      "text": "speak"
+    },
+    {
+      "endMs": 21840,
+      "startMs": 21583,
+      "text": "English."
+    },
+    {
+      "endMs": 22357,
+      "startMs": 22000,
+      "text": "Cheapness"
+    },
+    {
+      "endMs": 22753,
+      "startMs": 22397,
+      "text": "became"
+    },
+    {
+      "endMs": 23150,
+      "startMs": 22793,
+      "text": "fluency."
+    },
+    {
+      "endMs": 23547,
+      "startMs": 23190,
+      "text": "Nobody"
+    },
+    {
+      "endMs": 23943,
+      "startMs": 23587,
+      "text": "planned"
+    },
+    {
+      "endMs": 24340,
+      "startMs": 23983,
+      "text": "it."
+    },
+    {
+      "endMs": 24698,
+      "startMs": 24500,
+      "text": "But"
+    },
+    {
+      "endMs": 24936,
+      "startMs": 24738,
+      "text": "the"
+    },
+    {
+      "endMs": 25174,
+      "startMs": 24976,
+      "text": "interesting"
+    },
+    {
+      "endMs": 25412,
+      "startMs": 25214,
+      "text": "part"
+    },
+    {
+      "endMs": 25650,
+      "startMs": 25452,
+      "text": "is"
+    },
+    {
+      "endMs": 25888,
+      "startMs": 25690,
+      "text": "what"
+    },
+    {
+      "endMs": 26126,
+      "startMs": 25928,
+      "text": "it"
+    },
+    {
+      "endMs": 26364,
+      "startMs": 26166,
+      "text": "did"
+    },
+    {
+      "endMs": 26602,
+      "startMs": 26404,
+      "text": "to"
+    },
+    {
+      "endMs": 26840,
+      "startMs": 26642,
+      "text": "comedy."
+    },
+    {
+      "endMs": 27300,
+      "startMs": 27000,
+      "text": "Timing"
+    },
+    {
+      "endMs": 27640,
+      "startMs": 27340,
+      "text": "survives"
+    },
+    {
+      "endMs": 27980,
+      "startMs": 27680,
+      "text": "translation."
+    },
+    {
+      "endMs": 28320,
+      "startMs": 28020,
+      "text": "Dubbed"
+    },
+    {
+      "endMs": 28660,
+      "startMs": 28360,
+      "text": "jokes"
+    },
+    {
+      "endMs": 29000,
+      "startMs": 28700,
+      "text": "rarely"
+    },
+    {
+      "endMs": 29340,
+      "startMs": 29040,
+      "text": "do."
+    },
+    {
+      "endMs": 29698,
+      "startMs": 29500,
+      "text": "Dutch"
+    },
+    {
+      "endMs": 29936,
+      "startMs": 29738,
+      "text": "T"
+    },
+    {
+      "endMs": 30174,
+      "startMs": 29976,
+      "text": "V"
+    },
+    {
+      "endMs": 30412,
+      "startMs": 30214,
+      "text": "exported"
+    },
+    {
+      "endMs": 30650,
+      "startMs": 30452,
+      "text": "four"
+    },
+    {
+      "endMs": 30888,
+      "startMs": 30690,
+      "text": "times"
+    },
+    {
+      "endMs": 31126,
+      "startMs": 30928,
+      "text": "more"
+    },
+    {
+      "endMs": 31364,
+      "startMs": 31166,
+      "text": "than"
+    },
+    {
+      "endMs": 31602,
+      "startMs": 31404,
+      "text": "it"
+    },
+    {
+      "endMs": 31840,
+      "startMs": 31642,
+      "text": "imported."
+    },
+    {
+      "endMs": 32258,
+      "startMs": 32000,
+      "text": "A"
+    },
+    {
+      "endMs": 32555,
+      "startMs": 32298,
+      "text": "budget"
+    },
+    {
+      "endMs": 32853,
+      "startMs": 32595,
+      "text": "cut"
+    },
+    {
+      "endMs": 33150,
+      "startMs": 32893,
+      "text": "turned"
+    },
+    {
+      "endMs": 33448,
+      "startMs": 33190,
+      "text": "into"
+    },
+    {
+      "endMs": 33745,
+      "startMs": 33488,
+      "text": "a"
+    },
+    {
+      "endMs": 34043,
+      "startMs": 33785,
+      "text": "national"
+    },
+    {
+      "endMs": 34340,
+      "startMs": 34083,
+      "text": "advantage."
+    },
+    {
+      "endMs": 34758,
+      "startMs": 34500,
+      "text": "Constraints"
+    },
+    {
+      "endMs": 35055,
+      "startMs": 34798,
+      "text": "do"
+    },
+    {
+      "endMs": 35353,
+      "startMs": 35095,
+      "text": "that"
+    },
+    {
+      "endMs": 35650,
+      "startMs": 35393,
+      "text": "more"
+    },
+    {
+      "endMs": 35948,
+      "startMs": 35690,
+      "text": "often"
+    },
+    {
+      "endMs": 36245,
+      "startMs": 35988,
+      "text": "than"
+    },
+    {
+      "endMs": 36543,
+      "startMs": 36285,
+      "text": "money"
+    },
+    {
+      "endMs": 36840,
+      "startMs": 36583,
+      "text": "does."
+    },
+    {
+      "endMs": 37236,
+      "startMs": 37000,
+      "text": "Subtitles"
+    },
+    {
+      "endMs": 37512,
+      "startMs": 37276,
+      "text": "were"
+    },
+    {
+      "endMs": 37788,
+      "startMs": 37552,
+      "text": "never"
+    },
+    {
+      "endMs": 38064,
+      "startMs": 37828,
+      "text": "the"
+    },
+    {
+      "endMs": 38340,
+      "startMs": 38104,
+      "text": "compromise."
+    }
+  ]
+}

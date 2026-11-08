@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BreezeMatic — a sentence in, a finished short out</title>
+<meta name="description" content="Free, open-source and local-first: BreezeMatic turns a topic into a finished vertical video — written, voiced, timed, painted or typeset, and mixed — on your own computer." />
+<meta property="og:title" content="BreezeMatic" />
+<meta property="og:description" content="A sentence in, a finished short out. Free and open source." />
+<meta property="og:image" content="hero.jpg" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ctext x='4' y='28' font-size='30' font-family='Arial' fill='%23c9604a'%3E*%3C/text%3E%3C/svg%3E" />
+<style>
+  @font-face {
+    font-family: 'Inter';
+    src: url('font.woff2') format('woff2');
+    font-weight: 100 900;
+    font-display: swap;
+  }
+  :root {
+    color-scheme: light;
+    --paper: #fbfaf6;
+    --ink: #121110;
+    --ink-2: #44423e;
+    --mute: #a19e97;
+    --rule: #121110;
+    --hair: rgba(18, 17, 16, 0.14);
+    --wash: #f2eee5;
+    --accent: #c9604a;
+    --wrap: 1180px;
+    --gut: clamp(18px, 4vw, 40px);
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    font-size: 16px; line-height: 1.55; letter-spacing: -0.006em;
+    -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  }
+  a { color: inherit; }
+  img, video { display: block; max-width: 100%; }
+  .wrap { max-width: var(--wrap); margin: 0 auto; padding: 0 var(--gut); }
+  .skip { position: absolute; left: -999px; }
+  .skip:focus { left: 12px; top: 12px; background: var(--ink); color: var(--paper); padding: 8px 12px; z-index: 10; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 2px; }
+
+  /* ---------- top ---------- */
+  .top { padding-top: clamp(22px, 4vw, 40px); }
+  .top .rule { height: 6px; background: var(--rule); }
+  .nav {
+    display: grid; grid-template-columns: 1fr auto 1fr; align-items: center;
+    padding: 10px 0 0; font-size: 15px;
+  }
+  .nav a { text-decoration: none; }
+  .nav a:hover { text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+  .nav .c { justify-self: center; }
+  .nav .r { justify-self: end; }
+
+  .mark {
+    margin: clamp(10px, 2vw, 18px) 0 0; font-weight: 500;
+    font-size: min(13.2vw, 172px); line-height: 0.86; letter-spacing: -0.065em;
+    white-space: nowrap;
+  }
+  .mark .ast { color: var(--accent); font-weight: 400; letter-spacing: -0.02em; }
+  .mark .soft { color: var(--mute); }
+
+  .tag {
+    display: flex; justify-content: space-between; align-items: baseline; gap: 18px; flex-wrap: wrap;
+    margin: clamp(14px, 2.4vw, 26px) 0 clamp(16px, 2.6vw, 28px);
+  }
+  .tag p { margin: 0; font-size: clamp(18px, 2.2vw, 26px); letter-spacing: -0.02em; line-height: 1.25; max-width: 30ch; }
+  .tag .meta { font-size: 13px; color: var(--ink-2); display: flex; gap: 14px; flex-wrap: wrap; }
+  .tag .meta span::before { content: '— '; color: var(--mute); }
+
+  .hero { margin-block: 0; }
+  .hero .frame { border-radius: 8px; overflow: hidden; aspect-ratio: 18 / 11; background: var(--wash); }
+  .hero img { width: 100%; height: 100%; object-fit: cover; transform: scale(1.04); animation: settle 2.4s cubic-bezier(.2, .7, .2, 1) forwards; }
+  @keyframes settle { to { transform: scale(1); } }
+  .hero figcaption { display: flex; justify-content: space-between; gap: 12px; margin-top: 10px; font-size: 13px; color: var(--ink-2); }
+  .hero figcaption span:last-child { color: var(--mute); }
+
+  /* ---------- sections ---------- */
+  section { padding: clamp(56px, 9vw, 112px) 0 0; }
+  .label {
+    display: flex; justify-content: space-between; align-items: baseline;
+    border-top: 3px solid var(--rule); padding-top: 9px; margin-bottom: clamp(22px, 3vw, 34px);
+    font-size: 14px;
+  }
+  .label b { font-weight: 600; }
+  .label span { color: var(--mute); font-variant-numeric: tabular-nums; }
+
+  .cols { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); }
+  .lede { font-size: clamp(22px, 2.6vw, 32px); line-height: 1.24; letter-spacing: -0.022em; margin: 0 0 22px; }
+  .lede .arrow { color: var(--accent); }
+  .prose p { margin: 0 0 16px; color: var(--ink-2); max-width: 62ch; }
+  .aside { font-size: 13.5px; color: var(--ink-2); line-height: 1.5; }
+  .aside h3 { font-size: 13.5px; font-weight: 600; color: var(--ink); margin: 0 0 4px; }
+  .aside p { margin: 0 0 18px; }
+
+  /* the reel next to the index of looks */
+  .reel { display: grid; grid-template-columns: minmax(0, 340px) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px); align-items: start; }
+  .phone {
+    position: sticky; top: 24px;
+    border-radius: 26px; overflow: hidden; aspect-ratio: 9 / 16; background: #000;
+    box-shadow: 0 1px 2px rgba(0,0,0,.08), 0 24px 60px -24px rgba(40, 30, 20, .45);
+  }
+  .phone video { width: 100%; height: 100%; object-fit: cover; }
+  .phone + .cap { font-size: 13px; color: var(--mute); margin-top: 10px; }
+
+  table.index { width: 100%; border-collapse: collapse; font-size: 15px; }
+  table.index tr { border-bottom: 1px solid var(--hair); }
+  table.index tr:first-child { border-top: 1px solid var(--rule); }
+  table.index tr:last-child { border-bottom: 3px solid var(--rule); }
+  table.index td { padding: 14px 10px 14px 0; vertical-align: top; }
+  table.index td:first-child { width: 34%; font-weight: 600; letter-spacing: -0.012em; }
+  table.index td:first-child small { display: block; font-weight: 400; color: var(--mute); font-size: 12.5px; margin-top: 2px; }
+  table.index td:last-child { text-align: right; white-space: nowrap; color: var(--ink-2); font-size: 13.5px; padding-right: 0; }
+  table.index .free { color: var(--ink); }
+  table.index .free::before { content: '●'; color: #5a8f5a; font-size: 9px; vertical-align: 2px; margin-right: 6px; }
+  table.index .opt::before { content: '◐'; color: var(--accent); font-size: 10px; vertical-align: 1px; margin-right: 6px; }
+  table.index td.desc { color: var(--ink-2); }
+  table.index tr { transition: background .2s; }
+  table.index tr:hover { background: var(--wash); }
+
+  /* how it works */
+  .steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--rule); }
+  .steps div { padding: 16px 16px 22px 0; border-bottom: 1px solid var(--hair); }
+  .steps div:nth-child(n + 5) { border-bottom: 3px solid var(--rule); }
+  .steps b { display: block; font-size: 13px; color: var(--mute); font-weight: 500; font-variant-numeric: tabular-nums; margin-bottom: 18px; }
+  .steps h3 { margin: 0 0 6px; font-size: 19px; letter-spacing: -0.02em; font-weight: 600; }
+  .steps p { margin: 0; font-size: 14px; color: var(--ink-2); }
+
+  /* install */
+  pre {
+    margin: 0 0 18px; padding: 18px 20px; border-radius: 8px; overflow-x: auto;
+    background: var(--ink); color: #eeeae2; font: 13.5px/1.8 ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, monospace;
+  }
+  pre .c { color: #8f8a80; }
+  .copy {
+    float: right; margin: -2px -4px 0 12px; font: 12px 'Inter', sans-serif; color: #eeeae2;
+    background: rgba(255,255,255,.1); border: 0; border-radius: 6px; padding: 5px 9px; cursor: pointer;
+  }
+  .copy:hover { background: rgba(255,255,255,.18); }
+  .needs { font-size: 14px; color: var(--ink-2); margin: 0; }
+
+  /* closing */
+  .closing {
+    margin-top: clamp(56px, 9vw, 112px); padding: clamp(40px, 6vw, 72px) 0;
+    border-top: 3px solid var(--rule); border-bottom: 3px solid var(--rule);
+  }
+  .closing p { margin: 0; font-size: clamp(30px, 5.4vw, 72px); line-height: 1.02; letter-spacing: -0.045em; font-weight: 500; max-width: 18ch; }
+  .closing p span { color: var(--mute); }
+  .closing .go { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 28px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; height: 46px; padding: 0 20px; border-radius: 999px;
+    font-size: 15px; font-weight: 600; text-decoration: none; border: 1.5px solid var(--ink);
+  }
+  .btn.solid { background: var(--ink); color: var(--paper); }
+  .btn.solid:hover { background: #2c2a27; }
+  .btn:not(.solid):hover { background: var(--wash); }
+
+  footer { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; padding: 18px 0 40px; font-size: 13.5px; color: var(--ink-2); }
+  footer .c { justify-self: center; }
+  footer .r { justify-self: end; }
+  footer a { text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+  .fine { font-size: 12.5px; color: var(--mute); padding-bottom: 28px; max-width: 80ch; }
+
+  /* reveal as it scrolls in */
+  .rv { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s cubic-bezier(.2, .7, .2, 1); }
+  .rv.in { opacity: 1; transform: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .rv { opacity: 1; transform: none; transition: none; }
+    .hero img { animation: none; transform: none; }
+    html { scroll-behavior: auto; }
+  }
+
+  @media (max-width: 860px) {
+    .cols, .reel { grid-template-columns: minmax(0, 1fr); }
+    .phone { position: relative; top: 0; max-width: 320px; }
+    .steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .steps div:nth-child(n + 5) { border-bottom: 1px solid var(--hair); }
+    .steps div:nth-child(n + 7) { border-bottom: 3px solid var(--rule); }
+    table.index td:first-child { width: 42%; }
+  }
+  @media (max-width: 540px) {
+    .nav { font-size: 14px; }
+    .steps { grid-template-columns: minmax(0, 1fr); }
+    .steps div:nth-child(n) { border-bottom: 1px solid var(--hair); }
+    .steps div:last-child { border-bottom: 3px solid var(--rule); }
+    table.index td.desc { display: none; }
+    footer { grid-template-columns: 1fr; }
+    footer .c, footer .r { justify-self: start; }
+    .hero figcaption { flex-direction: column; gap: 2px; }
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="wrap top">
+  <div class="rule"></div>
+  <nav class="nav" aria-label="Site">
+    <a href="#looks">Looks</a>
+    <a class="c" href="https://github.com/thebreezyanupam/breezematic-oss">GitHub</a>
+    <a class="r" href="#install">Install&nbsp;&darr;</a>
+  </nav>
+  <h1 class="mark" aria-label="BreezeMatic"><span class="ast">*</span><span class="soft">Breeze</span>Matic</h1>
+  <div class="tag">
+    <p>A sentence in. A finished short out.</p>
+    <div class="meta"><span>free &amp; open source</span><span>runs on your computer</span><span>AGPL-3.0</span></div>
+  </div>
+</header>
+
+<main id="main">
+  <figure class="wrap hero">
+    <div class="frame"><img src="hero.jpg" width="1800" height="1100" alt="A watercolour of a lighthouse and a sailboat on a dusk sea, painted by BreezeMatic" /></div>
+    <figcaption><span>Painted live by the watercolour look, a wash and a stroke at a time.</span><span>no stock art, no generation fee</span></figcaption>
+  </figure>
+
+  <section class="wrap" id="about">
+    <div class="label rv"><b>What it is</b><span>01</span></div>
+    <div class="cols">
+      <div class="rv">
+        <p class="lede">BreezeMatic <span class="arrow">&rarr;</span> turn a topic into a finished vertical video: written, voiced, timed to the word, painted or typeset, and mixed.</p>
+        <div class="prose">
+          <p>A forty-second short is about a hundred and twenty words. Writing them is the quick part. What takes the afternoon is everything after: recording a read, pinning every word to a frame, cutting to the beat, setting type that never clips, ducking the music under the voice and mastering it to a number.</p>
+          <p>BreezeMatic does that work and shows its working. Every video is one beat sheet &mdash; every cut, every emphasis, every timing &mdash; that you can read and edit before a frame is rendered. The same seed gives you the same film, twice.</p>
+          <p>It is a local app and a command line. Nothing you make is uploaded unless you publish it, and there is no account to make.</p>
+        </div>
+      </div>
+      <aside class="aside rv">
+        <h3>Bring your own keys</h3>
+        <p>Every service is optional and switched on from the app's Settings. Most have a free tier; without any, it still renders, narrates with a local voice and mixes.</p>
+        <h3>Your data stays yours</h3>
+        <p>Projects, voices, history and keys live in your project folder. Export your keys as one file; delete everything in one go.</p>
+        <h3>Made with</h3>
+        <p>Remotion, p5.brush, whisper.cpp, Kokoro, FFmpeg and a lot of measuring.</p>
+      </aside>
+    </div>
+  </section>
+
+  <section class="wrap" id="looks">
+    <div class="label rv"><b>Looks</b><span>02</span></div>
+    <div class="reel">
+      <div class="rv">
+        <div class="phone"><video src="showreel.mp4" poster="showreel.jpg" autoplay muted loop playsinline preload="metadata" aria-label="A painted short about how honeybees make honey"></video></div>
+        <p class="cap">&ldquo;How honeybees make honey&rdquo; &mdash; the watercolour look.</p>
+      </div>
+      <table class="index rv">
+        <tbody>
+          <tr><td>Painted<small>watercolour</small></td><td class="desc">Every beat painted live while it is read: skies wash in, the subject is inked, the shadow hatched, the words handwritten underneath.</td><td class="free">free</td></tr>
+          <tr><td>Explainer<small>motion graphics</small></td><td class="desc">Real pictures with camera moves; counters, charts, timelines and maps on the beats that carry a fact; captions word by word.</td><td class="opt">free or paid</td></tr>
+          <tr><td>Kinetic type</td><td class="desc">Big animated type over a photograph or a clip, cut to the beat.</td><td class="opt">free or paid</td></tr>
+          <tr><td>Cinematic edit</td><td class="desc">Snap zooms, hard recuts, slow motion on the line that matters, and a film grade.</td><td class="free">free</td></tr>
+          <tr><td>Stick figure</td><td class="desc">A figure with a face acts out every beat in a drawn world, with weather, props and other people.</td><td class="free">free</td></tr>
+          <tr><td>Whiteboard</td><td class="desc">Handwriting and drawings appear under the pen at the pace of the voice.</td><td class="opt">free or paid</td></tr>
+          <tr><td>Storybook</td><td class="desc">A drawn panel per beat with the same character throughout.</td><td class="opt">paid</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="wrap" id="how">
+    <div class="label rv"><b>How it works</b><span>03</span></div>
+    <div class="steps rv">
+      <div><b>01</b><h3>Script</h3><p>From a topic, or your own words shaped into beats &mdash; not rewritten.</p></div>
+      <div><b>02</b><h3>Voice</h3><p>A local voice for free, or Gemini, ElevenLabs or your own cloned voice.</p></div>
+      <div><b>03</b><h3>Timing</h3><p>whisper.cpp pins every word to the millisecond it is said.</p></div>
+      <div><b>04</b><h3>Plan</h3><p>Cuts, emphasis and layout written into one beat sheet you can edit.</p></div>
+      <div><b>05</b><h3>Pictures</h3><p>Openly licensed photos and clips, generated stills, or painted scenes.</p></div>
+      <div><b>06</b><h3>Render</h3><p>Remotion draws every frame at 1080&times;1920, 30 fps.</p></div>
+      <div><b>07</b><h3>Mix</h3><p>Music ducked under the voice, sound on every cut, mastered to &minus;14 LUFS.</p></div>
+      <div><b>08</b><h3>Publish</h3><p>Optional: straight to YouTube or a Facebook Page, with a drafted description.</p></div>
+    </div>
+  </section>
+
+  <section class="wrap" id="install">
+    <div class="label rv"><b>Install</b><span>04</span></div>
+    <div class="cols">
+      <div class="rv">
+        <pre><button class="copy" type="button" data-copy>copy</button><code><span class="c"># get it</span>
+git clone https://github.com/thebreezyanupam/breezematic-oss.git
+cd breezematic-oss
+pnpm install
+
+<span class="c"># check what this machine has</span>
+pnpm cli doctor
+
+<span class="c"># open the app at http://localhost:4747/app</span>
+pnpm cli app</code></pre>
+        <p class="needs">Then open <b>Settings &rarr; Keys</b>. Every key is optional and links to where you get it; Gemini, Pexels, Freesound and Cloudflare all have free tiers.</p>
+      </div>
+      <aside class="aside rv">
+        <h3>Needs</h3>
+        <p>Node.js 22.5 or newer, pnpm, FFmpeg and Chrome. A GPU is not needed.</p>
+        <h3>Licence</h3>
+        <p>AGPL-3.0 with a permission for Remotion. Remotion has its own licence: free for individuals and small teams, paid for larger companies. <a href="https://www.remotion.dev/license">Read it</a> before using BreezeMatic at work.</p>
+      </aside>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="closing rv">
+      <p>The machine should do the labour. <span>The idea is the only part worth an afternoon.</span></p>
+      <div class="go">
+        <a class="btn solid" href="https://github.com/thebreezyanupam/breezematic-oss">Get it on GitHub</a>
+        <a class="btn" href="#install">Install</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="wrap">
+  <span>BreezeMatic</span>
+  <span class="c">Free &amp; open source &middot; AGPL-3.0</span>
+  <a class="r" href="https://github.com/thebreezyanupam/breezematic-oss">GitHub &nearr;</a>
+</footer>
+<p class="wrap fine">Painted with <a href="https://github.com/acamposuribe/p5.brush">p5.brush</a> by Alejandro Campos Uribe (MIT). Icons in the showreel and the painting by Delapouite and Lorc from <a href="https://game-icons.net">game-icons.net</a> (CC BY 3.0). Rendered with <a href="https://www.remotion.dev">Remotion</a>.</p>
+
+<script>
+  // Fade sections in as they arrive; everything is visible without this.
+  (() => {
+    const items = document.querySelectorAll('.rv');
+    if (!('IntersectionObserver' in window)) { items.forEach((el) => el.classList.add('in')); return; }
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+    }, { rootMargin: '0px 0px -8% 0px' });
+    items.forEach((el) => io.observe(el));
+  })();
+
+  // Copy the install commands without the comments.
+  for (const button of document.querySelectorAll('[data-copy]')) {
+    button.addEventListener('click', async () => {
+      const code = button.parentElement.querySelector('code').innerText
+        .split('\n').filter((line) => line.trim() !== '' && !line.trim().startsWith('#')).join('\n');
+      try { await navigator.clipboard.writeText(code); button.textContent = 'copied'; }
+      catch { button.textContent = 'select it'; }
+      setTimeout(() => { button.textContent = 'copy'; }, 1600);
+    });
+  }
+</script>
+</body>
+</html>

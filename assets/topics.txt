@@ -1,0 +1,7 @@
+# One topic per line. Autopilot takes the first unused line each run and
+# comments it out. Lines starting with # are ignored.
+# When this file runs dry it invents topics instead.
+
+# done 2026-08-11  why airport carpets are patterned
+why cargo ships are painted red below the waterline
+why pencils are hexagonal

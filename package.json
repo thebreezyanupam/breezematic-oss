@@ -1,0 +1,74 @@
+{
+  "name": "breezematic",
+  "version": "0.1.0",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "type": "module",
+  "description": "A sentence in, a finished short out: topic to finished vertical video, on your own computer.",
+  "homepage": "https://breezematic.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thebreezyanupam/breezematic-oss.git"
+  },
+  "bugs": {
+    "url": "https://github.com/thebreezyanupam/breezematic-oss/issues"
+  },
+  "packageManager": "pnpm@9.15.4",
+  "engines": {
+    "node": ">=22.5"
+  },
+  "scripts": {
+    "cli": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/noto-sans-devanagari": "^5.3.0",
+    "@fontsource/source-serif-4": "^5.3.0",
+    "@google/genai": "^2.16.0",
+    "@huggingface/transformers": "3.8.1",
+    "@remotion/bundler": "4.0.507",
+    "@remotion/cli": "4.0.507",
+    "@remotion/effects": "4.0.507",
+    "@remotion/install-whisper-cpp": "^4.0.507",
+    "@remotion/renderer": "4.0.507",
+    "@remotion/rough-notation": "4.0.507",
+    "@remotion/zod-types": "4.0.507",
+    "@supabase/supabase-js": "^2.112.2",
+    "commander": "^12.1.0",
+    "d3-geo": "3",
+    "fflate": "0.8",
+    "kokoro-js": "^1.2.1",
+    "lucide-static": "^1.31.0",
+    "onnxruntime-node": "1.21.0",
+    "p5.brush": "3.0.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "remotion": "4.0.507",
+    "sharp": "0.34.5",
+    "three": "^0.185.1",
+    "topojson-client": "3",
+    "world-atlas": "2",
+    "zod": "^3.23.8"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "onnxruntime-node",
+      "sharp"
+    ]
+  },
+  "devDependencies": {
+    "@types/d3-geo": "3",
+    "@types/geojson": "^7946.0.16",
+    "@types/node": "^22.20.5",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "@types/three": "^0.185.4",
+    "@types/topojson-client": "3",
+    "@types/topojson-specification": "^1.0.5",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}

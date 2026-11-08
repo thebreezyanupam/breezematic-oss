@@ -1,0 +1,39 @@
+services:
+  breezematic:
+    build: .
+    image: breezematic:0.1.0
+    init: true
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NO_COLOR: "1"
+    volumes:
+      - ./assets:/app/assets
+      - ./out:/app/out
+      - ./work:/app/work
+      - ./.cache:/app/.cache
+      - model-cache:/root/.cache
+    command: ["doctor"]
+
+  app:
+    build: .
+    image: breezematic:0.1.0
+    init: true
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NO_COLOR: "1"
+    volumes:
+      - ./assets:/app/assets
+      - ./out:/app/out
+      - ./work:/app/work
+      - ./.cache:/app/.cache
+      - model-cache:/root/.cache
+    ports:
+      - "4747:4747"
+    command: ["app", "--host", "0.0.0.0"]
+
+volumes:
+  model-cache:

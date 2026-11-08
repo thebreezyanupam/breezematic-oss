@@ -1,0 +1,10 @@
+node_modules
+.git
+.cache
+work
+out
+assets/bg
+assets/music
+assets/sfx
+.env
+.local

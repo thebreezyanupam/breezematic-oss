@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>BreezeMatic — a sentence in, a finished short out</title>
+<meta name="description" content="BreezeMatic turns a sentence into a finished vertical short: written, voiced, timed to the word, cut on the beat, typeset and mastered." />
+<style>
+  @font-face {
+    font-family: 'InterVariable';
+    src: url('/font.woff2') format('woff2-variations');
+    font-weight: 100 900;
+    font-display: block;
+  }
+
+  /* ------------------------------------------------------------------
+     One canvas colour, one ink, one accent. Everything else is a rule.
+     ------------------------------------------------------------------ */
+  :root {
+    --paper: #e9e8e4;
+    --paper-2: #e3e2dd;
+    --ink: #0b0b0a;
+    --ink-2: #56554f;
+    --ink-3: #8b8a82;
+    --rule: rgba(11, 11, 10, 0.16);
+    --hair: rgba(11, 11, 10, 0.08);
+    --accent: #1a17d8;
+    --on-accent: #edecff;
+    --field: #f2f1ee;
+    --veil: rgba(233, 232, 228, 0.72);
+    --bad: #b3230f;
+    --ok: #1c6b33;
+
+    /* The cursor trail. Two weights of the same tint: the lamp and the slower
+       copy dragging behind it. Set per surface, since a wash that reads on the
+       dark slab is invisible on paper. */
+    --lamp: rgba(11, 11, 10, 0.07);
+    --lamp-drag: rgba(11, 11, 10, 0.032);
+
+    --edge: clamp(18px, 4.2vw, 60px);
+    --bay: clamp(76px, 11vh, 148px);
+    --bar-h: 52px;
+  }
+  /**
+   * Not a theme any more — a section. The page alternates light and dark down
+   * its length, so the dark values are scoped to a class and every rule that
+   * already reads a token flips with it, no second set of selectors needed.
+   */
+  .inverse {
+    background: #0c0c0c; color: #edece7;
+    --paper: #0c0c0c;
+    --paper-2: #131313;
+    --ink: #edece7;
+    --ink-2: #9a998f;
+    --ink-3: #63625b;
+    --rule: rgba(237, 236, 231, 0.18);
+    --hair: rgba(237, 236, 231, 0.09);
+    --accent: #4a45ff;
+    --on-accent: #f2f1ff;
+    --field: #171717;
+    --veil: rgba(8, 8, 8, 0.74);
+    --bad: #ff7a63;
+    --ok: #7fd28f;
+    --lamp: rgba(237, 236, 231, 0.07);
+    --lamp-drag: rgba(237, 236, 231, 0.032);
+  }
+
+  * { box-sizing: border-box; margin: 0; }
+  [hidden] { display: none !important; }
+  html { background: var(--paper); -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'InterVariable', system-ui, -apple-system, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    font-feature-settings: 'ss01', 'cv05', 'calt';
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  a { color: inherit; text-decoration: none; }
+  ::selection { background: var(--accent); color: var(--on-accent); }
+  :focus-visible { outline: 1.5px solid var(--accent); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    * { animation: none !important; transition: none !important; }
+  }
+
+  /* ---------- primitives ---------- */
+  .bay { padding-inline: var(--edge); }
+  .rule { border-top: 1px solid var(--rule); }
+
+  .micro {
+    font-size: 10.5px; line-height: 1.35; letter-spacing: 0.055em;
+    color: var(--ink-3); text-transform: lowercase;
+  }
+  .num {
+    font-size: 10.5px; letter-spacing: 0.1em; color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .display { font-weight: 450; letter-spacing: -0.035em; line-height: 1.02; }
+  .lede {
+    font-size: clamp(19px, 2.15vw, 30px); line-height: 1.28;
+    letter-spacing: -0.024em; font-weight: 400;
+  }
+  .eyebrow {
+    display: block; font-size: 11px; letter-spacing: 0.02em;
+    color: var(--ink-3); margin-bottom: clamp(24px, 4vh, 44px);
+  }
+  .eyebrow::before { content: '— '; }
+
+  /* ---------- top bar ---------- */
+  .bar {
+    position: sticky; top: 0; z-index: 30;
+    display: flex; align-items: center; gap: clamp(14px, 3vw, 40px);
+    height: var(--bar-h); background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .mark {
+    font-size: 14.5px; font-weight: 600; letter-spacing: -0.05em;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .mark s { width: 7px; height: 7px; background: var(--accent); display: block; }
+  .bar nav { display: none; gap: clamp(14px, 2.2vw, 30px); }
+  .bar nav a { font-size: 12.5px; color: var(--ink-2); letter-spacing: -0.01em; }
+  .bar nav a:hover { color: var(--ink); }
+  .bar .end { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+  .linkbtn {
+    font-family: inherit; font-size: 12.5px; color: var(--ink-2);
+    background: none; border: 0; padding: 0; cursor: pointer;
+  }
+  .linkbtn:hover { color: var(--ink); }
+  @media (min-width: 860px) { .bar nav { display: flex; } }
+
+  button, .btn { font-family: inherit; cursor: pointer; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    height: 38px; padding: 0 18px; border-radius: 1px;
+    font-size: 13px; font-weight: 500; letter-spacing: -0.01em;
+    background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+    transition: opacity 0.16s ease;
+  }
+  .btn:hover { opacity: 0.82; }
+  .btn.tall { height: 52px; font-size: 14px; width: 100%; }
+  .btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* ---------- hero ----------
+     One screen. The sentence, the numbers, and the field — nothing below the
+     fold until you ask for it. */
+  .hero {
+    min-height: calc(100svh - var(--bar-h));
+    display: flex; flex-direction: column;
+    padding-top: clamp(40px, 8vh, 92px);
+  }
+  h1 { font-size: clamp(38px, 7.4vw, 104px); max-width: 14ch; margin: 0; }
+  h1 .dim { color: var(--ink-3); }
+  .hero .under {
+    display: flex; flex-wrap: wrap; gap: 14px 34px; align-items: baseline;
+    margin-top: clamp(22px, 4vh, 40px); padding-top: 15px; flex: none;
+  }
+  .said { color: var(--ink-2); font-size: 13.5px; letter-spacing: -0.005em; }
+  .specstrip { display: flex; flex-wrap: wrap; gap: 6px 26px; margin-left: auto; }
+  .specstrip b { color: var(--ink-2); font-weight: 400; }
+
+  /* ---------- the field ----------
+     The last thing this machine rendered, redrawn as bars. */
+  .field {
+    position: relative; flex: 1; min-height: 132px;
+    margin-top: clamp(18px, 3vh, 34px); margin-bottom: clamp(16px, 3vh, 30px);
+  }
+  .field canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; z-index: 1; }
+  .field figcaption { position: absolute; top: -17px; right: 0; z-index: 2; }
+  /**
+   * The reel plays behind the glyphs rather than off-screen feeding them. It is
+   * pushed well down in contrast so the ASCII stays the thing you read — the
+   * picture is there to prove the type on screen is a real render, not to
+   * compete with the layer drawn from it.
+   */
+  /**
+   * A render is white type on a near-black frame — measured at luma 6 across
+   * the whole frame. Laid on cream at half opacity that is a mid-grey slab, and
+   * the glyphs on top are near-black ink, so the layer the page is built around
+   * was the least legible thing on it. Inverting turns the frame into paper and
+   * the type into ink, which is the register the rest of the page is already in:
+   * the background lands within a couple of levels of --paper and disappears,
+   * and the type arrives as a mid-tone that the dark glyphs print over.
+   */
+  .field video {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; display: block; pointer-events: none; z-index: 0;
+    filter: grayscale(1) invert(1) contrast(0.78) brightness(1.03);
+    opacity: 0.62;
+    transition: opacity 0.4s ease, filter 0.4s ease;
+  }
+  /* On a dark page the frame is already the right way round — it only needs
+     lifting, or it reads as an empty rectangle behind the glyphs. */
+  .inverse .field video {
+    filter: grayscale(1) contrast(1.1) brightness(1.25);
+  }
+  .field.is-still video { opacity: 0; }
+
+  /* The cursor is answered by the glyphs themselves, in the canvas — see the
+     pointer field in startField(). Nothing here to style. */
+
+  /* ---------- prose ---------- */
+  .bay-block { padding-block: var(--bay); }
+  .twoup { display: grid; grid-template-columns: minmax(0, 1fr); gap: clamp(26px, 4vw, 64px); }
+  @media (min-width: 900px) {
+    .twoup { grid-template-columns: 15ch minmax(0, 1fr); }
+    .twoup .eyebrow { margin-bottom: 0; }
+  }
+  .twoup .body > * + * { margin-top: 1.1em; }
+  .twoup .body { max-width: 34ch; }
+  @media (min-width: 900px) { .twoup .body { max-width: 30ch; } }
+
+  /* ---------- the stages block ---------- */
+  .accent { padding-block: clamp(64px, 10vh, 130px); }
+  .accent .eyebrow, .accent .num { color: var(--ink-3); }
+  .accent .micro { color: var(--ink-2); font-size: 11px; }
+  .accent h2 { max-width: 19ch; font-size: clamp(25px, 3.5vw, 50px); }
+
+  .stagewrap { position: relative; margin-top: clamp(38px, 6vh, 72px); }
+  .stages { list-style: none; padding: 0; margin: 0; position: relative; z-index: 1; }
+  .stages li {
+    display: grid; grid-template-columns: 34px minmax(0, 1fr) auto;
+    gap: 10px 16px; align-items: baseline;
+    padding: 15px 18px; margin-inline: -18px;
+    border-top: 1px solid var(--rule);
+  }
+  .stages li:last-child { border-bottom: 1px solid var(--rule); }
+  .stages .name { font-size: clamp(17px, 2.1vw, 26px); letter-spacing: -0.03em; font-weight: 450; }
+  .stages .io { text-align: right; white-space: nowrap; }
+  .stages .io em { font-style: normal; opacity: 0.55; padding: 0 4px; }
+  @media (max-width: 560px) {
+    .stages li { grid-template-columns: 26px minmax(0, 1fr); }
+    .stages .io { grid-column: 2; text-align: left; }
+  }
+
+  /* The lamp follows the cursor between rows; a slower second copy drags
+     behind it, which is the whole trail. The tint comes from whichever surface
+     it is sitting on, so the same pair works on the slab and on paper. */
+  .trailwrap { position: relative; }
+  .trailwrap > ol { position: relative; z-index: 1; }
+  .lamp {
+    position: absolute; left: -18px; right: -18px; top: 0; height: 0;
+    opacity: 0; pointer-events: none; z-index: 0;
+    background: var(--lamp);
+    transition: transform 0.34s cubic-bezier(.22,1,.36,1),
+                height 0.34s cubic-bezier(.22,1,.36,1),
+                opacity 0.26s ease;
+  }
+  .lamp.drag {
+    background: var(--lamp-drag);
+    transition-duration: 0.86s, 0.86s, 0.4s;
+  }
+  /* The compare columns are narrower than the slab rows, so the wash sits in
+     tighter to avoid crossing the gutter between the two sides. */
+  .compare .lamp { left: -12px; right: -12px; }
+
+  /* ---------- numbered steps ---------- */
+  .steps { display: grid; gap: 0; margin-top: clamp(30px, 5vh, 56px); }
+  @media (min-width: 900px) { .steps { grid-template-columns: repeat(3, 1fr); gap: 0 clamp(24px, 3vw, 56px); } }
+  .steps article { padding: 22px 0; border-top: 1px solid var(--rule); }
+  .steps h3 {
+    font-size: clamp(19px, 2.1vw, 26px); font-weight: 450;
+    letter-spacing: -0.03em; margin: 14px 0 8px;
+  }
+  .steps p { color: var(--ink-2); max-width: 34ch; }
+
+  /* ---------- before / after ---------- */
+  .compare { display: grid; gap: clamp(34px, 5vw, 70px); margin-top: clamp(30px, 5vh, 56px); }
+  @media (min-width: 900px) { .compare { grid-template-columns: 1fr 1fr; } }
+  .compare .side > h3 {
+    font-size: 12px; font-weight: 500; letter-spacing: 0.01em;
+    color: var(--ink-3); padding-bottom: 14px;
+  }
+  .compare ol { list-style: none; padding: 0; margin: 0; }
+  .compare li {
+    display: grid; grid-template-columns: 30px minmax(0, 1fr);
+    gap: 12px; padding: 13px 0; border-top: 1px solid var(--hair);
+    color: var(--ink-2);
+  }
+  .compare li b { color: var(--ink); font-weight: 450; }
+  .compare .claim {
+    border-top: 1px solid var(--rule); padding-top: 22px;
+    font-size: clamp(18px, 1.9vw, 25px); line-height: 1.3;
+    letter-spacing: -0.024em; max-width: 26ch;
+  }
+  .compare .claim + p { margin-top: 16px; color: var(--ink-2); max-width: 32ch; }
+
+  /* ---------- spec table ---------- */
+  .specs { display: grid; margin-top: clamp(26px, 4vh, 48px); }
+  @media (min-width: 700px) { .specs { grid-template-columns: 1fr 1fr; column-gap: clamp(30px, 5vw, 80px); } }
+  .specs div {
+    display: flex; align-items: baseline; gap: 14px;
+    padding: 12px 0; border-top: 1px solid var(--hair);
+  }
+  .specs dt { color: var(--ink-3); font-size: 12.5px; min-width: 12ch; }
+  .specs dd {
+    margin: 0 0 0 auto; text-align: right;
+    font-size: clamp(15px, 1.4vw, 19px); letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* ---------- the gate ---------- */
+  dialog.gate {
+    padding: 0; border: 0; background: transparent; color: var(--ink);
+    width: min(400px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    /* The reset up top zeroes every margin, and a modal dialog centres itself
+       with `margin: auto` against `inset: 0`. Both have to be said again. */
+    inset: 0; margin: auto;
+  }
+  dialog.gate::backdrop { background: var(--veil); backdrop-filter: blur(7px); -webkit-backdrop-filter: blur(7px); }
+  dialog.gate[open] { animation: gatein 0.32s cubic-bezier(.22,1,.36,1); }
+  @keyframes gatein { from { opacity: 0; transform: translateY(10px) scale(0.985); } }
+
+  .panel { border: 1px solid var(--rule); background: var(--paper); }
+  .panel .head {
+    display: flex; align-items: center; gap: 9px;
+    padding: 13px 18px; border-bottom: 1px solid var(--rule);
+  }
+  .panel .head .sp { margin-left: auto; }
+  .shut {
+    background: none; border: 0; padding: 0; cursor: pointer; color: var(--ink-3);
+    font-size: 15px; line-height: 1; font-family: inherit;
+  }
+  .shut:hover { color: var(--ink); }
+  .dot { width: 5px; height: 5px; border-radius: 50%; background: var(--ink-3); flex: none; }
+  .dot.on { background: var(--ok); }
+  .dot.off { background: var(--accent); }
+
+  .tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--rule); }
+  .tabs button {
+    height: 44px; font-size: 12.5px; font-weight: 450; letter-spacing: -0.01em;
+    background: none; border: 0; color: var(--ink-3);
+    border-bottom: 1.5px solid transparent; margin-bottom: -1px;
+  }
+  .tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+
+  .panel .body { padding: 22px 18px; }
+  .field-row + .field-row { margin-top: 14px; }
+  .field-row label { display: block; margin-bottom: 7px; }
+  .box { position: relative; display: flex; }
+  input {
+    width: 100%; height: 46px; padding: 0 13px;
+    font-family: inherit; font-size: 14px; color: var(--ink);
+    background: var(--field); border: 1px solid var(--rule); border-radius: 1px;
+    outline: none; transition: border-color 0.14s ease;
+  }
+  input::placeholder { color: var(--ink-3); }
+  input:focus { border-color: var(--ink); }
+  input:disabled { opacity: 0.45; }
+  .peek {
+    position: absolute; right: 1px; top: 1px; bottom: 1px; width: 52px;
+    background: none; border: 0; color: var(--ink-3); font-family: inherit;
+    font-size: 10.5px; letter-spacing: 0.05em; cursor: pointer;
+  }
+  .peek:hover { color: var(--ink); }
+  .panel .body .btn { margin-top: 18px; }
+  .note { margin-top: 14px; padding-left: 11px; border-left: 1.5px solid var(--rule); color: var(--ink-2); font-size: 12.5px; line-height: 1.45; }
+  .note:empty { display: none; }
+  .note.bad { border-left-color: var(--bad); color: var(--bad); }
+  .note.ok { border-left-color: var(--ok); color: var(--ok); }
+  .fine { margin-top: 16px; padding-top: 13px; border-top: 1px solid var(--hair); line-height: 1.5; }
+
+  /* ---------- closing + footer ---------- */
+  .closing { padding-block: clamp(70px, 12vh, 150px); }
+  .closing p {
+    font-size: clamp(23px, 3.4vw, 46px); font-weight: 450;
+    letter-spacing: -0.035em; line-height: 1.08; max-width: 17ch;
+  }
+  .closing p span { color: var(--ink-3); }
+
+  footer { padding-block: 26px 34px; border-top: 1px solid var(--rule); }
+  .footrow { display: flex; flex-wrap: wrap; gap: 10px 26px; align-items: baseline; }
+  .footrow .sp { margin-left: auto; }
+
+  /* ---------- reveal ---------- */
+  .rv { opacity: 0; transform: translateY(14px); }
+  .rv.in {
+    opacity: 1; transform: none;
+    transition: opacity 0.7s cubic-bezier(.22,1,.36,1), transform 0.8s cubic-bezier(.22,1,.36,1);
+  }
+  .rv.in.d1 { transition-delay: 0.06s; }
+  .rv.in.d2 { transition-delay: 0.12s; }
+  @media (prefers-reduced-motion: reduce) { .rv { opacity: 1; transform: none; } }
+
+  .up > span { display: inline-block; overflow: hidden; vertical-align: top; }
+  .up > span > span {
+    display: inline-block; transform: translateY(105%);
+    animation: rise 0.85s cubic-bezier(.16,1,.3,1) forwards;
+  }
+  @keyframes rise { to { transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .up > span > span { transform: none; animation: none; } }
+</style>
+</head>
+<body>
+
+<header class="bar bay">
+  <a class="mark" href="#top"><s></s>BreezeMatic</a>
+  <nav>
+    <a href="#arithmetic">the arithmetic</a>
+    <a href="#system">the system</a>
+    <a href="#craft">the craft</a>
+  </nav>
+  <div class="end">
+    <button class="btn" id="btn-gate" type="button">sign in</button>
+    <a class="btn" id="btn-app" href="/app" hidden>open the app</a>
+  </div>
+</header>
+
+<main id="top">
+  <section class="hero bay">
+    <h1 class="display up" id="hero-line"></h1>
+
+    <div class="under rule">
+      <span class="said">written, voiced, timed, cut, typeset, mastered.</span>
+      <dl class="specstrip micro">
+        <div><dt>frame</dt> <b>1080 &times; 1920</b></div>
+        <div><dt>rate</dt> <b>30 fps</b></div>
+        <div><dt>master</dt> <b>&minus;14 lufs</b></div>
+        <div><dt>upload</dt> <b>never</b></div>
+      </dl>
+    </div>
+
+    <figure class="field">
+      <figcaption class="micro" id="field-tag">the last one off this machine</figcaption>
+      <canvas id="stage" aria-label="The most recently rendered short, drawn as ASCII"></canvas>
+      <video id="reel" muted loop playsinline preload="auto" aria-hidden="true"></video>
+    </figure>
+  </section>
+
+  <section class="bay bay-block inverse" id="arithmetic">
+    <div class="twoup">
+      <span class="eyebrow rv">the arithmetic</span>
+      <div class="body lede rv d1">
+        <p>a forty-second short is about a hundred and twenty words. writing them is
+        the quick part.</p>
+        <p>what takes the afternoon is everything after. record a read. transcribe it.
+        pin every word to a frame. cut to a grid. set the type so nothing clips.
+        duck the bed. chase the peaks. export. watch it back. do it again.</p>
+        <p>BreezeMatic does that work, and it shows you its working.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="accent" id="system">
+    <div class="bay">
+      <span class="eyebrow">the system</span>
+      <h2 class="display">eight stages, and one file passed between them. every stage
+      reads what the last one wrote.</h2>
+
+      <div class="stagewrap" id="stagewrap">
+        <span class="lamp drag" id="lamp-drag"></span>
+        <span class="lamp" id="lamp"></span>
+        <ol class="stages" id="stage-list"></ol>
+      </div>
+    </div>
+  </section>
+
+  <section class="bay bay-block inverse" id="how">
+    <div class="twoup">
+      <span class="eyebrow rv">how it goes</span>
+      <div class="body lede rv d1">
+        <p>three moves, and only the middle one is yours.</p>
+      </div>
+    </div>
+
+    <div class="steps">
+      <article class="rv">
+        <span class="num">01</span>
+        <h3>say what it is about</h3>
+        <p>a topic, or your own script pasted in however you have it. it comes back
+        shaped into beats &mdash; in your words, not a rewrite.</p>
+      </article>
+      <article class="rv d1">
+        <span class="num">02</span>
+        <h3>read the beat sheet</h3>
+        <p>every cut, every emphasis, every timing, in one file you can edit by hand.
+        this is the part worth your attention.</p>
+      </article>
+      <article class="rv d2">
+        <span class="num">03</span>
+        <h3>produce</h3>
+        <p>the picture renders, the audio is mastered against a number rather than a
+        feeling, and an mp4 lands on your disk.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="bay bay-block rule" id="craft">
+    <div class="twoup">
+      <span class="eyebrow rv">a different surface</span>
+      <div class="body lede rv d1">
+        <p>the same short, made the usual way and made here.</p>
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="side rv">
+        <h3>by hand</h3>
+        <div class="trailwrap" id="handwrap">
+          <span class="lamp drag"></span>
+          <span class="lamp"></span>
+          <ol>
+            <li><span class="num">01</span><span><b>write.</b> draft it, cut it, and guess at the length.</span></li>
+            <li><span class="num">02</span><span><b>record.</b> read it, retake it, clean the room tone.</span></li>
+            <li><span class="num">03</span><span><b>transcribe.</b> mark where each word actually lands.</span></li>
+            <li><span class="num">04</span><span><b>animate.</b> key every line, then check nothing clips the frame.</span></li>
+            <li><span class="num">05</span><span><b>mix.</b> level the read, duck the bed, chase the peaks, export again.</span></li>
+          </ol>
+        </div>
+      </div>
+      <div class="side rv d1">
+        <h3>with BreezeMatic</h3>
+        <p class="claim display">one topic, one file, one command &mdash; and every number
+        in it is measured rather than eyeballed.</p>
+        <p>the timings come from the audio itself. the cuts land on the grid. every line
+        is measured against the frame before it is drawn. the master is checked, not
+        judged. and the same seed gives you the same film, twice.</p>
+
+        <dl class="specs">
+          <div><dt>length</dt><dd>30&ndash;50s</dd></div>
+          <div><dt>cut every</dt><dd>1.5&ndash;3s</dd></div>
+          <div><dt>word timing</dt><dd>&plusmn;80 ms</dd></div>
+          <div><dt>on the grid</dt><dd>100%</dd></div>
+          <div><dt>true peak</dt><dd>&minus;1 dBTP</dd></div>
+          <div><dt>a video costs</dt><dd>&asymp; $0.001</dd></div>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <section class="bay closing inverse">
+    <p class="display rv">the machine should do the labour.
+    <span>the idea is the only part worth an afternoon.</span></p>
+  </section>
+</main>
+
+<footer class="bay">
+  <div class="footrow micro">
+    <span>BreezeMatic</span>
+    <span>local-first short-form video</span>
+    <span class="sp"></span>
+    <span>nothing you make is uploaded</span>
+    <span>&copy; 2026</span>
+  </div>
+</footer>
+
+<dialog class="gate" id="gate" aria-labelledby="auth-heading">
+  <div class="panel">
+    <div class="head">
+      <span class="dot" id="auth-dot"></span>
+      <span class="micro" id="auth-heading">account</span>
+      <span class="sp"></span>
+      <span class="micro" id="auth-state">checking</span>
+      <button class="shut" id="btn-shut" type="button" aria-label="Close">&#215;</button>
+    </div>
+
+    <div class="tabs" id="tabs" role="tablist" aria-label="Sign in or create an account">
+      <button role="tab" id="tab-signin" aria-selected="true" aria-controls="auth-body" type="button">sign in</button>
+      <button role="tab" id="tab-signup" aria-selected="false" aria-controls="auth-body" type="button">create account</button>
+    </div>
+
+    <div class="body" id="auth-body">
+      <form id="auth-form" novalidate>
+        <div class="field-row">
+          <label class="micro" for="email">email</label>
+          <div class="box">
+            <input id="email" name="email" type="email" autocomplete="email"
+                   placeholder="you@example.com" required />
+          </div>
+        </div>
+        <div class="field-row">
+          <label class="micro" for="password">password</label>
+          <div class="box">
+            <input id="password" name="password" type="password" autocomplete="current-password"
+                   placeholder="at least 6 characters" minlength="6" required />
+            <button class="peek" id="btn-peek" type="button" aria-label="Show password">show</button>
+          </div>
+        </div>
+        <button class="btn tall" id="auth-submit" type="submit">sign in</button>
+      </form>
+
+      <p class="note" id="auth-note" role="status" aria-live="polite"></p>
+      <p class="fine micro" id="auth-blurb">an account is required to make anything</p>
+    </div>
+  </div>
+</dialog>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { mode: 'signin', configured: false, busy: false };
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------- hero ---------------- */
+
+const HERO = [
+  ['a sentence in.', ''],
+  ['a finished short out.', 'dim'],
+];
+
+function buildHero() {
+  const line = $('hero-line');
+  let index = 0;
+  for (const [text, tone] of HERO) {
+    for (const word of text.split(' ')) {
+      const clip = document.createElement('span');
+      const lift = document.createElement('span');
+      lift.textContent = word;
+      if (tone !== '') lift.className = tone;
+      lift.style.animationDelay = `${0.05 + index * 0.05}s`;
+      clip.appendChild(lift);
+      line.appendChild(clip);
+      line.appendChild(document.createTextNode(' '));
+      index += 1;
+    }
+    line.appendChild(document.createElement('br'));
+  }
+}
+
+/* ---------------- the field ----------------
+   The most recent finished short, sampled down to a coarse grid and redrawn
+   one bar per cell: the brighter the cell, the longer and darker the bar. It
+   is the real film, not a pattern of it. Until this machine has produced
+   something there is nothing to sample, so a fixed arrangement stands in. */
+
+/* Cells are far wider than they are tall, so every one draws a dash rather than
+   a dot and the grid reads as a barcode the film is modulating. */
+/**
+ * A glyph cell, not a bar cell. Width follows the monospace advance so the
+ * columns line up as type rather than as a grid that happens to hold letters;
+ * height is the leading. Both are smaller than the bars were, because a
+ * character needs to be read and a bar only needed to be seen.
+ */
+const CELL_W = 9;
+const CELL_H = 15;
+
+/** Dark to light. Sparse at the bottom so the field breathes where the frame is black. */
+const RAMP = ' .·:-=+*ao#%@';
+/* A short's background is a blurred picture under a scrim — mid-grey, not
+   black — so a low threshold lets the whole frame through and every run merges
+   into a stripe. Only the type is ever near-white, and the type is the part
+   worth printing. */
+const FLOOR = 0.46;
+/* The slice of the frame the strip shows — the type sits across the middle. */
+
+function mulberry32(seed) {
+  return function next() {
+    seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function startField() {
+  const canvas = $('stage');
+  const ctx = canvas.getContext('2d');
+  const video = $('reel');
+  const sample = document.createElement('canvas');
+  const sctx = sample.getContext('2d', { willReadFrequently: true });
+
+  let width = 0;
+  let height = 0;
+  let cols = 0;
+  let rows = 0;
+  let live = false;
+  /** The resting field: word runs with gaps between them, one value per cell. */
+  let base = new Float32Array(0);
+  /** What is actually drawn this frame: the field with the film over it. */
+  let work = new Float32Array(0);
+
+  /**
+   * Where the cursor is, where the field thinks it is, and how much of it has
+   * arrived. `x`/`y` chase `tx`/`ty` and `power` chases `want`, both a frame at
+   * a time, which is what gives the glyphs their weight — they lag the mouse
+   * going in and drift back after it leaves instead of snapping.
+   */
+  const pointer = { x: 0, y: 0, tx: 0, ty: 0, power: 0, want: 0, reach: 130 };
+
+  function easePointer() {
+    pointer.x += (pointer.tx - pointer.x) * 0.19;
+    pointer.y += (pointer.ty - pointer.y) * 0.19;
+    pointer.power += (pointer.want - pointer.power) * 0.11;
+  }
+
+  function buildBase() {
+    base = new Float32Array(rows * cols);
+    work = new Float32Array(rows * cols);
+    const rng = mulberry32(20260810);
+    for (let row = 0; row < rows; row++) {
+      const heavy = row % 5 === 2;
+      let col = Math.floor(rng() * 3);
+      while (col < cols) {
+        const run = 1 + Math.floor(rng() * (heavy ? 6 : 3));
+        const level = heavy ? 0.55 + rng() * 0.45 : 0.12 + rng() * 0.34;
+        for (let i = 0; i < run && col + i < cols; i++) base[row * cols + col + i] = level;
+        col += run + 1 + Math.floor(rng() * 3);
+      }
+    }
+  }
+
+  function resize() {
+    const box = canvas.getBoundingClientRect();
+    const ratio = Math.min(2, window.devicePixelRatio || 1);
+    width = box.width;
+    height = box.height;
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    cols = Math.max(8, Math.floor(width / CELL_W));
+    rows = Math.max(4, Math.floor(height / CELL_H));
+    // Wide enough to bend a phrase, narrow enough to leave the rest still.
+    pointer.reach = Math.max(96, Math.min(190, width * 0.13));
+    sample.width = cols;
+    sample.height = rows;
+    buildBase();
+  }
+
+  /* The field sits in whichever section it was placed in, so it asks the DOM
+     rather than a page-wide theme that no longer exists. */
+  const onDark = canvas.closest('.inverse') !== null;
+
+  function ink(alpha) {
+    return onDark ? `rgba(237,236,231,${alpha})` : `rgba(11,11,10,${alpha})`;
+  }
+
+  /**
+   * One glyph per cell, picked off the ramp by how lit the cell is. Opacity
+   * carries the same weight the bars used to, so a dark frame thins out to
+   * punctuation instead of going blank, and the type in the render arrives as
+   * a block of the densest characters.
+   */
+  function paint() {
+    const cellW = width / cols;
+    const cellH = height / rows;
+
+    ctx.font = `${Math.round(cellH * 0.82)}px ui-monospace, 'Cascadia Mono', 'SF Mono', Menlo, Consolas, monospace`;
+    ctx.textBaseline = 'middle';
+    ctx.textAlign = 'center';
+
+    const last = RAMP.length - 1;
+
+    // Read once rather than per cell: this loop runs a few thousand times a
+    // frame and the cursor cannot move inside it.
+    const reach = pointer.reach;
+    const power = pointer.power;
+    const bending = power > 0.004;
+    const px = pointer.x;
+    const py = pointer.y;
+
+    for (let row = 0; row < rows; row++) {
+      const cy = row * cellH + cellH / 2;
+      const nearRow = bending && Math.abs(cy - py) < reach;
+
+      for (let col = 0; col < cols; col++) {
+        let level = work[row * cols + col] ?? 0;
+        if (level <= 0) continue;
+
+        let x = col * cellW + cellW / 2;
+        let y = cy;
+
+        /**
+         * Each glyph is shoved directly away from the cursor and printed
+         * heavier, both falling off with the square of the distance so the
+         * centre opens a clear hole and the edge of the reach is untouched.
+         * The push is capped at a third of the reach, which is about two cells
+         * — enough to see the grid bend, not enough to lose the type in it.
+         */
+        if (nearRow) {
+          const ox = x - px;
+          if (ox > -reach && ox < reach) {
+            const oy = y - py;
+            const dist = Math.sqrt(ox * ox + oy * oy);
+            if (dist < reach) {
+              const fall = 1 - dist / reach;
+              const shove = fall * fall * reach * 0.33 * power;
+              // At dist 0 there is no direction to push in, so it stays put.
+              const unit = dist > 0.001 ? shove / dist : 0;
+              x += ox * unit;
+              y += oy * unit;
+              level = Math.min(1, level + fall * fall * 0.5 * power);
+            }
+          }
+        }
+
+        const glyph = RAMP[Math.min(last, Math.max(1, Math.round(level * last)))];
+        if (glyph === ' ') continue;
+
+        ctx.fillStyle = ink(0.16 + level * 0.78);
+        ctx.fillText(glyph, x, y);
+      }
+    }
+  }
+
+  function drawVideo() {
+    const vw = video.videoWidth;
+    const vh = video.videoHeight;
+    if (vw === 0 || vh === 0) return false;
+
+    // The reel is visible underneath now, so the glyphs have to be drawn from
+    // exactly the region the viewer can see. That means repeating what
+    // `object-fit: cover` does — fill the box, crop the overflowing axis,
+    // centred — rather than sampling a band of our own choosing. Any other
+    // rectangle and the ASCII drifts out of register with the picture it is
+    // supposedly made of.
+    const boxAspect = width / height;
+    const videoAspect = vw / vh;
+
+    let sw = vw;
+    let sh = vh;
+    if (videoAspect > boxAspect) sw = vh * boxAspect;
+    else sh = vw / boxAspect;
+
+    sctx.drawImage(video, (vw - sw) / 2, (vh - sh) / 2, sw, sh, 0, 0, cols, rows);
+    const { data } = sctx.getImageData(0, 0, cols, rows);
+
+    // The field never goes away; the film only ever prints over it. Held under
+    // the picture it keeps the grid there where the frame is dark, and the
+    // type — the brightest thing in a kinetic short — comes through solid.
+    for (let cell = 0; cell < work.length; cell++) {
+      const i = cell * 4;
+      const luma = (0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]) / 255;
+      const lit = Math.pow(Math.max(0, Math.min(1, (luma - FLOOR) / 0.4)), 0.7);
+      work[cell] = Math.max((base[cell] ?? 0) * 0.3, lit < 0.12 ? 0 : lit);
+    }
+    paint();
+    return true;
+  }
+
+  /** Nothing produced on this machine yet: the resting field, held still. */
+  function drawStill() {
+    work.set(base);
+    paint();
+  }
+
+  function frame() {
+    easePointer();
+    ctx.clearRect(0, 0, width, height);
+    if (!live || video.readyState < 2 || !drawVideo()) drawStill();
+    if (!reduced) requestAnimationFrame(frame);
+  }
+
+  resize();
+
+  // Nothing to play behind the glyphs until a reel decodes, and if none ever
+  // does the empty <video> box should not sit there as a dark rectangle.
+  const figure = canvas.closest('.field');
+  figure.classList.add('is-still');
+
+  /**
+   * The cursor is fed to the glyphs rather than to a layer over them: the
+   * pointer carries its own eased position and strength, and paint() reads both
+   * every frame. Easing here and not in CSS is the point — the field has to
+   * keep moving after the mouse stops, and settle back on its own when it
+   * leaves. Touch never sets `want`, so the field stays at rest.
+   */
+  if (!reduced) {
+    figure.addEventListener('mousemove', (event) => {
+      const box = canvas.getBoundingClientRect();
+      pointer.tx = event.clientX - box.left;
+      pointer.ty = event.clientY - box.top;
+      // Re-entering somewhere else should not drag the bulge across the field.
+      if (pointer.power < 0.02) { pointer.x = pointer.tx; pointer.y = pointer.ty; }
+      pointer.want = 1;
+    });
+    figure.addEventListener('mouseleave', () => { pointer.want = 0; });
+  }
+
+  video.addEventListener('loadeddata', () => {
+    live = true;
+    figure.classList.remove('is-still');
+    $('field-tag').textContent = 'the last one off this machine';
+    // With motion turned down there is no loop to pick this up, so the one
+    // frame the video did decode is drawn here or not at all.
+    if (reduced) frame();
+  });
+  video.addEventListener('error', () => {
+    live = false;
+    figure.classList.add('is-still');
+    $('field-tag').textContent = 'one beat sheet — word durations on the grid';
+  });
+  video.src = '/api/showreel';
+  if (!reduced) video.play().catch(() => undefined);
+
+  frame();
+
+  let pending;
+  window.addEventListener('resize', () => {
+    clearTimeout(pending);
+    pending = setTimeout(() => { resize(); if (reduced) frame(); }, 120);
+  });
+
+  return frame;
+}
+
+/* ---------------- the stage list ---------------- */
+
+const STAGES = [
+  ['script', 'a topic', 'narration'],
+  ['voice', 'narration', 'a read'],
+  ['align', 'a read', 'every word, timed'],
+  ['beats', 'tempo', 'a grid to cut on'],
+  ['plan', 'timings', 'the beat sheet'],
+  ['visuals', 'the script', 'fields and stills'],
+  ['render', 'the beat sheet', 'picture'],
+  ['mix', 'picture', 'a mastered file'],
+];
+
+function buildStages() {
+  const list = $('stage-list');
+  for (const [index, [name, input, output]] of STAGES.entries()) {
+    const li = document.createElement('li');
+    li.innerHTML =
+      `<span class="num">0${index + 1}</span>` +
+      `<span class="name">${name}</span>` +
+      `<span class="io micro">${input}<em>&rarr;</em>${output}</span>`;
+    list.appendChild(li);
+  }
+
+  trail($('stagewrap'));
+}
+
+/**
+ * The cursor trail: a wash that snaps to whichever row the pointer is over,
+ * with a slower copy dragging behind it. Rows are read off the list at call
+ * time, so the same function serves the stage list, which is built from data,
+ * and the hand-written one in the comparison.
+ */
+function trail(wrap) {
+  if (wrap === null) return;
+  const lamps = wrap.querySelectorAll('.lamp');
+  const list = wrap.querySelector('ol');
+  if (list === null || lamps.length === 0) return;
+
+  for (const li of list.children) {
+    li.addEventListener('mouseenter', () => {
+      for (const lamp of lamps) {
+        lamp.style.transform = `translateY(${li.offsetTop}px)`;
+        lamp.style.height = `${li.offsetHeight}px`;
+        lamp.style.opacity = '1';
+      }
+    });
+  }
+  wrap.addEventListener('mouseleave', () => {
+    for (const lamp of lamps) lamp.style.opacity = '0';
+  });
+}
+
+/* ---------------- account ---------------- */
+
+const COPY = {
+  signin: { submit: 'sign in', blurb: 'an account is required to make anything' },
+  signup: { submit: 'create account', blurb: 'six characters minimum — about ten seconds' },
+};
+
+function note(text, kind) {
+  const el = $('auth-note');
+  el.textContent = text || '';
+  el.className = 'note' + (kind ? ' ' + kind : '');
+}
+
+/** Tab state only — never touches the note, so an error survives a redraw. */
+function setMode(next) {
+  state.mode = next;
+  const up = next === 'signup';
+  $('tab-signin').setAttribute('aria-selected', String(!up));
+  $('tab-signup').setAttribute('aria-selected', String(up));
+  $('auth-submit').textContent = COPY[next].submit;
+  $('auth-blurb').textContent = COPY[next].blurb;
+  $('password').setAttribute('autocomplete', up ? 'new-password' : 'current-password');
+}
+
+function setBusy(busy) {
+  state.busy = busy;
+  $('auth-submit').disabled = busy || !state.configured;
+  $('email').disabled = busy || !state.configured;
+  $('password').disabled = busy || !state.configured;
+  $('auth-submit').textContent = busy
+    ? (state.mode === 'signup' ? 'creating…' : 'signing in…')
+    : COPY[state.mode].submit;
+}
+
+async function api(method, url, body) {
+  const res = await fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: body === undefined ? undefined : JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
+
+function openGate() {
+  $('gate').showModal();
+  setTimeout(() => { if (!$('email').disabled) $('email').focus(); }, 60);
+}
+
+$('btn-gate').onclick = openGate;
+$('btn-shut').onclick = () => $('gate').close();
+/* The dialog element is the whole viewport once open, so a click that lands on
+   it rather than on the panel is a click on the backdrop. */
+$('gate').addEventListener('click', (event) => {
+  if (event.target === $('gate')) $('gate').close();
+});
+
+/** Set once the field is running; the bars are drawn in ink, so a theme
+    change has to reach the canvas as well as the stylesheet. */
+
+
+$('btn-peek').onclick = () => {
+  const field = $('password');
+  const shown = field.type === 'text';
+  field.type = shown ? 'password' : 'text';
+  $('btn-peek').textContent = shown ? 'show' : 'hide';
+  $('btn-peek').setAttribute('aria-label', shown ? 'Show password' : 'Hide password');
+};
+
+$('tab-signin').onclick = () => setMode('signin');
+$('tab-signup').onclick = () => setMode('signup');
+
+$('tabs').addEventListener('keydown', (event) => {
+  if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+  event.preventDefault();
+  const next = state.mode === 'signin' ? 'signup' : 'signin';
+  setMode(next);
+  $('tab-' + next).focus();
+});
+
+$('auth-form').onsubmit = async (event) => {
+  event.preventDefault();
+  if (!state.configured || state.busy) return;
+
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  if (email === '' || !email.includes('@')) {
+    note('enter an email address.', 'bad');
+    $('email').focus();
+    return;
+  }
+  if (password.length < 6) {
+    note('password must be at least 6 characters.', 'bad');
+    $('password').focus();
+    return;
+  }
+
+  setBusy(true);
+  note('');
+
+  try {
+    const result = await api('POST', '/api/auth/' + state.mode, { email, password });
+
+    if (result.confirmationRequired) {
+      setBusy(false);
+      setMode('signin');
+      $('password').value = '';
+      note('account created. click the link in your email, then sign in.', 'ok');
+      return;
+    }
+
+    note('signed in. opening the app…', 'ok');
+    window.location.href = '/app';
+  } catch (error) {
+    setBusy(false);
+    note(error.message, 'bad');
+  }
+};
+
+/** Signed in, or on a machine with no accounts at all: one button, no gate. */
+function showOpenApp(label) {
+  $('btn-gate').hidden = true;
+  $('btn-app').hidden = false;
+  $('btn-app').textContent = label;
+}
+
+function watchReveals() {
+  const items = document.querySelectorAll('.rv');
+  if (!('IntersectionObserver' in window)) {
+    items.forEach((el) => el.classList.add('in'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add('in');
+      io.unobserve(entry.target);
+    }
+  }, { rootMargin: '0px 0px -12% 0px' });
+  items.forEach((el) => io.observe(el));
+}
+
+async function init() {
+  buildHero();
+  buildStages();
+  startField();
+  trail($('handwrap'));
+  watchReveals();
+  setMode('signin');
+  setBusy(false);
+
+  let status;
+  try {
+    status = await api('GET', '/api/status');
+  } catch {
+    $('auth-state').textContent = 'offline';
+    setBusy(false);
+    return;
+  }
+
+  state.configured = status.accountsEnabled === true;
+
+  if (status.account) { showOpenApp('open the app'); return; }
+  if (!state.configured) { showOpenApp('open the app'); return; }
+
+  $('auth-state').textContent = 'ready';
+  $('auth-dot').className = 'dot on';
+  setBusy(false);
+}
+
+init();
+</script>
+</body>
+</html>

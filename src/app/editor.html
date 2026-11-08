@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Editor — BreezeMatic</title>
+<script>
+  // Before the first paint, so a light-mode user never sees a dark flash.
+  try { document.documentElement.dataset.theme = localStorage.getItem('breezematic-theme') === 'light' ? 'light' : 'dark'; } catch { /* private */ }
+</script>
+<style>
+  /*
+    The editor is its own page rather than another view inside the app.
+    The app's page is one file of three hundred kilobytes and every screen in
+    it shares one state object; an editor bolted into that would inherit all
+    of it to change none of it. This page loads one project and talks to five
+    endpoints.
+  */
+  /* The app's own palette, both themes, so opening the editor is not a jump
+     into a different product -- and light mode stays light. The theme is the
+     one the app saved (see the script in <head>). */
+  :root {
+    --ink: #090909;
+    --panel: #121216;
+    --line: rgba(255,255,255,0.09);
+    --line-strong: rgba(255,255,255,0.2);
+    --control: rgba(255,255,255,0.07);
+    --selected: rgba(255,255,255,0.13);
+    --sink: rgba(0,0,0,0.35);
+    --text: #fafafa;
+    --dim: #a0a0a9;
+    --accent: #7c7cf8;
+    --bad: #f87171;
+    --btn-grad: linear-gradient(180deg, #ffffff 0%, #e9e9ee 100%);
+    --btn-ink: #09090b;
+    color-scheme: dark;
+  }
+  :root[data-theme="light"] {
+    --ink: #f4f4f6;
+    --panel: #ffffff;
+    --line: rgba(9,9,11,0.1);
+    --line-strong: rgba(9,9,11,0.25);
+    --control: rgba(9,9,11,0.05);
+    --selected: rgba(9,9,11,0.1);
+    --sink: rgba(9,9,11,0.06);
+    --text: #09090b;
+    --dim: #52525b;
+    --accent: #5b5bd6;
+    --bad: #dc2626;
+    --btn-grad: linear-gradient(180deg, #2c2c33 0%, #09090b 100%);
+    --btn-ink: #ffffff;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--text);
+    font: 14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  header {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 18px; border-bottom: 1px solid var(--line); background: var(--panel);
+    position: sticky; top: 0; z-index: 5;
+  }
+  header h1 { font-size: 15px; margin: 0; font-weight: 600; }
+  header .slug { color: var(--dim); font-size: 12px; }
+  .grow { flex: 1; }
+  button, select, input[type=text], input[type=number] {
+    background: var(--control); color: var(--text); border: 1px solid var(--line);
+    border-radius: 7px; padding: 7px 11px; font: inherit;
+  }
+  button { cursor: pointer; }
+  button:hover:not(:disabled) { border-color: var(--line-strong); }
+  button:disabled { color: var(--dim); border-color: var(--line); cursor: not-allowed; opacity: 0.7; }
+  button.primary { background: var(--btn-grad); color: var(--btn-ink); border-color: transparent; font-weight: 600; }
+  button.primary:disabled { background: var(--control); color: var(--dim); border-color: var(--line); }
+  button.danger { color: var(--bad); }
+  main { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; padding: 16px; align-items: start; }
+  @media (max-width: 900px) {
+    main { grid-template-columns: minmax(0, 1fr); padding: 12px; }
+    header { flex-wrap: wrap; padding: 10px 12px; }
+  }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+  video, #preview { width: 100%; border-radius: 10px; display: block; background: #000; }
+  #preview { display: none; }
+  .hint { color: var(--dim); font-size: 12px; margin: 8px 0 0; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .lbl { display: block; font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--dim); margin: 12px 0 5px; }
+  /* The timeline: one block per picture, scaled by how long it holds. */
+  #timeline { display: flex; gap: 2px; margin-top: 12px; height: 62px; }
+  #timeline .plate {
+    position: relative; border-radius: 4px; overflow: hidden; cursor: pointer;
+    border: 2px solid transparent; background: var(--sink); min-width: 6px;
+  }
+  #timeline .plate img { width: 100%; height: 100%; object-fit: cover; opacity: 0.75; }
+  #timeline .plate.sel { border-color: var(--accent); }
+  #timeline .plate .n { position: absolute; left: 3px; top: 2px; font-size: 10px; color: #fff; text-shadow: 0 1px 3px #000; }
+  #marks { position: relative; height: 22px; margin-top: 4px; }
+  #marks div { position: absolute; top: 0; font-size: 10px; color: var(--dim); transform: translateX(-50%); white-space: nowrap; }
+  #playhead { position: relative; height: 3px; background: var(--control); border-radius: 2px; margin-top: 6px; }
+  #playhead i { position: absolute; top: -3px; width: 2px; height: 9px; background: var(--accent); }
+  .tabs { display: flex; gap: 6px; margin-bottom: 10px; flex-wrap: wrap; }
+  .tabs button[aria-current=true] { background: var(--selected); border-color: var(--line-strong); }
+  .item { border: 1px solid var(--line); border-radius: 9px; padding: 9px; margin-bottom: 8px; }
+  .item .top { display: flex; gap: 8px; align-items: baseline; }
+  .item .name { font-weight: 600; }
+  .item .when { color: var(--dim); font-size: 12px; margin-left: auto; }
+  .q { color: var(--dim); font-size: 12px; font-style: italic; margin-top: 4px; }
+  #status { color: var(--dim); font-size: 12px; }
+  #status.bad { color: var(--bad); }
+  .bar { height: 5px; background: var(--control); border-radius: 3px; overflow: hidden; margin-top: 8px; display: none; }
+  .bar i {
+    display: block; height: 100%; width: 0; background: var(--accent);
+    transition: width 0.4s ease;
+    /* Alive while frames are landing: a still bar and a dead render look the same. */
+    background-image: linear-gradient(90deg, var(--accent) 0%, color-mix(in srgb, var(--accent) 35%, white) 45%, var(--accent) 90%);
+    background-size: 220% 100%;
+    animation: shine 1.6s linear infinite;
+  }
+  @keyframes shine { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+  img.thumb { width: 100%; border-radius: 8px; display: block; }
+  textarea { width: 100%; min-height: 70px; background: var(--control); color: var(--text); border: 1px solid var(--line); border-radius: 7px; padding: 8px; font: inherit; resize: vertical; }
+</style>
+</head>
+<body>
+<header>
+  <h1 id="title">Editor</h1>
+  <span class="slug" id="slug"></span>
+  <span class="grow"></span>
+  <span id="status"></span>
+  <button id="preview-btn">Preview this frame</button>
+  <button id="save">Save</button>
+  <button id="render" class="primary">Render</button>
+</header>
+
+<main>
+  <section class="panel">
+    <video id="player" controls preload="metadata"></video>
+    <img id="preview" alt="Preview frame" />
+    <div class="bar" id="bar"><i></i></div>
+    <div id="timeline"></div>
+    <div id="marks"></div>
+    <div id="playhead"><i></i></div>
+    <p class="hint" id="tl-hint">Click a picture to edit it. Marks below are cutouts and quotations.</p>
+  </section>
+
+  <section class="panel">
+    <div class="tabs">
+      <button data-tab="picture" aria-current="true">Picture</button>
+      <button data-tab="cutouts" aria-current="false">Cutouts</button>
+      <button data-tab="quotes" aria-current="false">Quotes</button>
+      <button data-tab="sound" aria-current="false">Sound</button>
+      <button data-tab="look" aria-current="false">Look</button>
+      <button data-tab="voice" aria-current="false">Voice</button>
+      <button data-tab="chapters" aria-current="false">Chapters</button>
+      <button data-tab="description" aria-current="false">Description</button>
+      <button data-tab="thumbnail" aria-current="false">Thumbnail</button>
+      <button data-tab="speed" aria-current="false">Speed</button>
+    </div>
+    <div id="tab-picture"></div>
+    <div id="tab-cutouts" hidden></div>
+    <div id="tab-quotes" hidden></div>
+    <div id="tab-sound" hidden></div>
+    <div id="tab-look" hidden></div>
+    <div id="tab-voice" hidden></div>
+    <div id="tab-chapters" hidden></div>
+    <div id="tab-description" hidden></div>
+    <div id="tab-thumbnail" hidden></div>
+    <div id="tab-speed" hidden></div>
+  </section>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const slug = new URLSearchParams(location.search).get('slug') || '';
+const LEAD_IN_MS = 4000;
+let project = null;
+let music = [];
+let selected = 0;
+let dirty = false;
+let polling = null;
+
+const time = (ms) => {
+  const s = Math.max(0, Math.round(ms / 1000));
+  return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+};
+const say = (text, bad) => {
+  $('status').textContent = text || '';
+  $('status').className = bad ? 'bad' : '';
+};
+
+async function api(path, options) {
+  const response = await fetch(path, options);
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(body.error || ('the server said ' + response.status));
+  return body;
+}
+
+/* ------------------------------------------------------------- loading -- */
+
+async function load() {
+  if (!slug) { say('no video chosen', true); return; }
+  const body = await api('/api/edit/' + slug);
+  project = body.project;
+  music = body.music || [];
+  $('title').textContent = project.title || slug;
+  $('slug').textContent = slug;
+  $('player').src = '/api/video/' + slug + '?v=essay&t=' + Date.now();
+  drawTimeline();
+  drawTabs();
+  if (body.job && (body.job.stage === 'render' || body.job.stage === 'mix')) watch();
+}
+
+/* ------------------------------------------------------------ timeline -- */
+
+function drawTimeline() {
+  const plates = project.scene.plates;
+  const total = project.scene.durationMs || 1;
+  const strip = $('timeline');
+  strip.innerHTML = '';
+  plates.forEach((plate, i) => {
+    const block = document.createElement('div');
+    block.className = 'plate' + (i === selected ? ' sel' : '');
+    block.style.flex = String(Math.max(0.02, (plate.endMs - plate.startMs) / total));
+    block.title = time(plate.startMs) + ' – ' + time(plate.endMs);
+    block.innerHTML = '<img loading="lazy" src="/images/' + plate.file + '" alt="" /><span class="n">' + (i + 1) + '</span>';
+    block.onclick = () => { selected = i; drawTimeline(); show('picture'); seek(plate.startMs + 250); };
+    strip.appendChild(block);
+  });
+
+  const marks = $('marks');
+  marks.innerHTML = '';
+  const mark = (atMs, label, colour) => {
+    const el = document.createElement('div');
+    el.style.left = ((atMs / total) * 100) + '%';
+    el.style.color = colour;
+    el.textContent = label;
+    marks.appendChild(el);
+  };
+  project.scene.cutouts.forEach((cut) => mark(cut.startMs, '◆ ' + cut.name, '#8fb7ff'));
+  project.scene.quotes.forEach(() => {});
+  project.scene.quotes.forEach((quote) => mark(quote.speakStartMs, '❝', '#e8b86a'));
+}
+
+function seek(ms) {
+  const player = $('player');
+  if (!Number.isFinite(ms)) return;
+  player.currentTime = Math.max(0, ms / 1000);
+  $('preview').style.display = 'none';
+  player.style.display = 'block';
+}
+
+$('player').addEventListener('timeupdate', () => {
+  const total = (project?.scene.durationMs || 1) / 1000;
+  $('playhead').firstElementChild.style.left = (($('player').currentTime / total) * 100) + '%';
+});
+
+/* ---------------------------------------------------------------- tabs -- */
+
+function show(which) {
+  for (const button of document.querySelectorAll('.tabs button')) {
+    button.setAttribute('aria-current', String(button.dataset.tab === which));
+  }
+  for (const name of ['picture', 'cutouts', 'quotes', 'sound', 'look', 'voice', 'chapters', 'description', 'thumbnail', 'speed']) {
+    $('tab-' + name).hidden = name !== which;
+  }
+}
+for (const button of document.querySelectorAll('.tabs button')) {
+  button.onclick = () => {
+    show(button.dataset.tab);
+    if (button.dataset.tab === 'description') void drawDescription();
+    if (button.dataset.tab === 'voice') void drawVoice();
+    if (button.dataset.tab === 'thumbnail') void drawThumbnails();
+    if (button.dataset.tab === 'speed') void drawSpeed();
+    if (button.dataset.tab !== 'sound') stopLive();
+  };
+}
+
+function drawTabs() {
+  drawPicture();
+  drawChapters();
+  drawCutouts();
+  drawQuotes();
+  drawSound();
+  drawLook();
+}
+
+/* ------------------------------------------------------------- picture -- */
+
+function drawPicture() {
+  const plate = project.scene.plates[selected];
+  const box = $('tab-picture');
+  if (!plate) { box.innerHTML = '<p class="hint">This video has no pictures.</p>'; return; }
+  box.innerHTML = [
+    '<img class="thumb" src="/images/' + plate.file + '" alt="" />',
+    '<p class="hint">Picture ' + (selected + 1) + ' of ' + project.scene.plates.length +
+      ' · ' + time(plate.startMs) + ' – ' + time(plate.endMs) +
+      ' · ' + (plate.depth ? 'parallax' : 'flat') + (plate.matte ? ' · captions can pass behind it' : '') + '</p>',
+    '<span class="lbl">Replace with a file</span>',
+    '<input type="file" id="pic-file" accept="image/png,image/jpeg" />',
+    '<span class="lbl">Or draw a new one</span>',
+    '<textarea id="pic-prompt" placeholder="What should this shot be? e.g. a dim attic, a gilded frame turned to the wall, one candle"></textarea>',
+    '<div class="row" style="margin-top:8px">',
+    '  <select id="pic-engine"><option value="gemini">Gemini — about 4c, matches the characters</option>',
+    '  <option value="flux">FLUX — about a third of a cent</option></select>',
+    '  <button id="pic-draw">Draw it</button>',
+    '</div>',
+    '<span class="lbl">Or reuse another picture from this video</span>',
+    '<select id="pic-reuse"><option value="">Pick one…</option>' +
+      project.scene.plates.map((other, i) => '<option value="' + other.file + '">' + (i + 1) + ' · ' + time(other.startMs) + '</option>').join('') +
+      '</select>',
+    '<p class="hint">A replacement gets its own depth map, so it moves like the rest.</p>',
+  ].join('');
+
+  $('pic-file').onchange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => void replace({ mode: 'upload', dataUrl: reader.result });
+    reader.readAsDataURL(file);
+  };
+  $('pic-draw').onclick = () => void replace({
+    mode: 'draw',
+    prompt: $('pic-prompt').value,
+    engine: $('pic-engine').value,
+  });
+  $('pic-reuse').onchange = (event) => {
+    if (event.target.value) void replace({ mode: 'reuse', file: event.target.value });
+  };
+}
+
+async function replace(what) {
+  try {
+    say('working on the picture…');
+    const body = await api('/api/edit/' + slug + '/picture', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ plate: selected, ...what }),
+    });
+    project.scene.plates[selected] = body.plate;
+    drawTimeline();
+    drawPicture();
+    say('picture replaced — saved. Render when you are ready.');
+    void previewFrame();
+  } catch (error) {
+    say(error.message, true);
+  }
+}
+
+/* ------------------------------------------------------------- cutouts -- */
+
+function drawCutouts() {
+  const box = $('tab-cutouts');
+  const cutouts = project.scene.cutouts;
+  if (cutouts.length === 0) { box.innerHTML = '<p class="hint">Nothing is pasted over this video.</p>'; return; }
+  box.innerHTML = cutouts.map((cut, i) => [
+    '<div class="item">',
+    '  <div class="top"><span class="name">' + cut.name + '</span><span class="when">' + time(cut.startMs) + '</span></div>',
+    '  <img class="thumb" style="max-height:120px;object-fit:contain;margin:6px 0" src="/images/' + cut.file + '" alt="" />',
+    '  <div class="row">',
+    '    <button data-cut="' + i + '" data-do="earlier">◀ 0.5s</button>',
+    '    <button data-cut="' + i + '" data-do="later">0.5s ▶</button>',
+    '    <button data-cut="' + i + '" data-do="side">' + (cut.side === 'left' ? 'Move right' : 'Move left') + '</button>',
+    '    <button data-cut="' + i + '" data-do="bigger">Bigger</button>',
+    '    <button data-cut="' + i + '" data-do="smaller">Smaller</button>',
+    '    <button class="danger" data-cut="' + i + '" data-do="delete">Remove</button>',
+    '  </div>',
+    '</div>',
+  ].join('')).join('');
+
+  for (const button of box.querySelectorAll('button')) {
+    button.onclick = () => {
+      const i = Number(button.dataset.cut);
+      const cut = project.scene.cutouts[i];
+      const what = button.dataset.do;
+      if (what === 'delete') project.scene.cutouts.splice(i, 1);
+      if (what === 'earlier') { cut.startMs -= 500; cut.endMs -= 500; }
+      if (what === 'later') { cut.startMs += 500; cut.endMs += 500; }
+      if (what === 'side') cut.side = cut.side === 'left' ? 'right' : 'left';
+      if (what === 'bigger') cut.scale = Math.min(0.9, (cut.scale || 0.5) + 0.06);
+      if (what === 'smaller') cut.scale = Math.max(0.2, (cut.scale || 0.5) - 0.06);
+      touch();
+      drawCutouts();
+      drawTimeline();
+    };
+  }
+}
+
+/* -------------------------------------------------------------- quotes -- */
+
+function drawQuotes() {
+  const box = $('tab-quotes');
+  const quotes = project.scene.quotes;
+  if (quotes.length === 0) {
+    box.innerHTML = '<p class="hint">No quotation cards. They appear only where the narration quotes a public-domain book word for word.</p>';
+    return;
+  }
+  box.innerHTML = quotes.map((quote, i) => [
+    '<div class="item">',
+    '  <div class="top"><span class="name">' + quote.attribution + '</span><span class="when">' + time(quote.speakStartMs) + '</span></div>',
+    '  <p class="q">“' + quote.text + '”</p>',
+    '  <div class="row" style="margin-top:6px">',
+    '    <button class="danger" data-quote="' + i + '">Remove this card</button>',
+    '  </div>',
+    '</div>',
+  ].join('')).join('');
+  for (const button of box.querySelectorAll('button')) {
+    button.onclick = () => {
+      project.scene.quotes.splice(Number(button.dataset.quote), 1);
+      touch();
+      drawQuotes();
+      drawTimeline();
+    };
+  }
+}
+
+/* --------------------------------------------------------------- voice -- */
+
+/**
+ * A different reader for a video that already exists.
+ *
+ * Not a re-render: the voice sets the timing of every word, so the captions,
+ * the cuts, the cuttings and the quotation cards all have to be placed again
+ * against the new reading. The writing and the pictures do not change and are
+ * not paid for twice -- they come back from the cache -- so with a local
+ * voice this costs a render and nothing else.
+ */
+let voices = null;
+
+async function drawVoice() {
+  const box = $('tab-voice');
+  if (voices === null) {
+    try {
+      const status = await api('/api/status');
+      voices = status.characters || [];
+    } catch {
+      voices = [];
+    }
+  }
+  const current = (project.options || {}).character || '';
+  const canRenarrate = project.options && project.options.book;
+
+  box.innerHTML = [
+    '<span class="lbl">Reader</span>',
+    '<select id="voice-pick">' +
+      voices.map((v) =>
+        '<option value="' + v.id + '"' + (v.id === current ? ' selected' : '') + '>' +
+        v.label + ' — ' + (v.group || '') + '</option>').join('') +
+      '</select>',
+    '<p class="hint">' +
+      (canRenarrate
+        ? 'Reading it again re-times every caption, cut and cutting, so it runs the whole video ' +
+          'through again — but the script and the pictures come back from the cache, so a local ' +
+          'voice costs nothing but the render.'
+        : 'This video was made before its settings were saved, so it cannot be re-narrated here. ' +
+          'Make it again from the Books screen to change the voice.') +
+      '</p>',
+    canRenarrate
+      ? '<div class="row" style="margin-top:8px"><button id="voice-go" class="primary">Read it again</button></div>'
+      : '',
+  ].join('');
+
+  if (!canRenarrate) return;
+  $('voice-go').onclick = async () => {
+    const picked = $('voice-pick').value;
+    if (picked === current && !confirm('That is the voice it already has. Read it again anyway?')) return;
+    try {
+      if (dirty) await save();
+      await api('/api/edit/' + slug + '/voice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ character: picked }),
+      });
+      say('reading it again — watch it on the Books screen; this page shows the new video when it is done');
+    } catch (error) {
+      say(error.message, true);
+    }
+  };
+}
+
+/* ------------------------------------------------------------ chapters -- */
+
+/**
+ * The cards that say "Chapter one" over the picture.
+ *
+ * Renaming or removing one costs a render and nothing else -- the card is
+ * drawn from this list, not baked into anything upstream. Removing the last
+ * one leaves a video with no chapters at all, which is what a script that
+ * never asked for them should have produced.
+ */
+function drawChapters() {
+  const box = $('tab-chapters');
+  const cards = project.scene.chapters || [];
+  if (cards.length === 0) {
+    box.innerHTML =
+      '<p class="hint">No chapter cards. Mark them in your script with a line starting ' +
+      '<code>#</code> and they appear exactly where you put them.</p>';
+    return;
+  }
+  box.innerHTML =
+    '<p class="hint">These are drawn over the video. Renaming or removing one only needs a render.</p>' +
+    cards.map((card, i) => [
+      '<div class="item">',
+      '  <div class="top"><span class="name">Chapter ' + (i + 1) + '</span>',
+      '  <span class="when">' + time(card.atMs) + '</span></div>',
+      '  <div class="row" style="margin-top:6px">',
+      '    <input type="text" data-title="' + i + '" value="' + String(card.title).replace(/"/g, '&quot;') + '" style="flex:1" />',
+      '    <button class="danger" data-drop="' + i + '">Remove</button>',
+      '  </div>',
+      '</div>',
+    ].join('')).join('') +
+    '<div class="row" style="margin-top:4px"><button id="ch-none" class="danger">Remove every chapter card</button></div>';
+
+  for (const field of box.querySelectorAll('input[data-title]')) {
+    field.oninput = () => {
+      project.scene.chapters[Number(field.dataset.title)].title = field.value;
+      touch();
+    };
+  }
+  for (const button of box.querySelectorAll('button[data-drop]')) {
+    button.onclick = () => {
+      project.scene.chapters.splice(Number(button.dataset.drop), 1);
+      touch();
+      drawChapters();
+    };
+  }
+  $('ch-none').onclick = () => {
+    project.scene.chapters = [];
+    touch();
+    drawChapters();
+  };
+}
+
+/* --------------------------------------------------------------- sound -- */
+
+const CUE_KINDS = [
+  ['click', 'Typewriter keys under the title and chapter cards'],
+  ['whoosh', 'Whooshes under the cinematic cuts'],
+  ['impact', 'Hits where a claim lands'],
+  ['riser', 'Swells into the turn'],
+  ['war', 'War and comedy sounds on the words'],
+];
+
+/**
+ * Live sound: the picture plays muted, and the narration and the music play
+ * beside it as two tracks, in step with it. The music goes through a gain the
+ * slider moves directly, so a level is heard while it is dragged -- the way a
+ * video editor's fader works -- rather than after a render.
+ */
+let stems = null;
+let remixOk = false;
+let remixWhy = null;
+let live = null;
+
+async function loadStems() {
+  try {
+    const view = await api('/api/edit/' + slug + '/stems');
+    stems = view.stems;
+    remixOk = view.canRemix;
+    remixWhy = view.why;
+  } catch {
+    stems = null;
+  }
+}
+
+function musicGain() {
+  if (stems === null || !stems.musicUrl) return 0;
+  if (project.audio.music === 'none') return 0;
+  // Decibels relative to the level the stem was mixed at.
+  return Math.pow(10, (project.audio.musicLufs - stems.musicLufs) / 20);
+}
+
+function stopLive() {
+  if (live === null) return;
+  clearInterval(live.timer);
+  live.voice.pause();
+  if (live.music) live.music.pause();
+  live.ctx.close().catch(() => {});
+  for (const [name, handler] of live.handlers) $('player').removeEventListener(name, handler);
+  $('player').muted = false;
+  live = null;
+}
+
+function startLive() {
+  if (stems === null || live !== null) return;
+  const player = $('player');
+  const ctx = new AudioContext();
+  const voice = new Audio(stems.voiceUrl);
+  voice.preload = 'auto';
+  ctx.createMediaElementSource(voice).connect(ctx.destination);
+  let music = null;
+  let gain = null;
+  if (stems.musicUrl) {
+    music = new Audio(stems.musicUrl);
+    music.preload = 'auto';
+    gain = ctx.createGain();
+    gain.gain.value = musicGain();
+    ctx.createMediaElementSource(music).connect(gain).connect(ctx.destination);
+  }
+  const tracks = music ? [voice, music] : [voice];
+  const align = () => {
+    for (const track of tracks) {
+      if (Math.abs(track.currentTime - player.currentTime) > 0.15) track.currentTime = player.currentTime;
+    }
+  };
+  const handlers = [
+    ['play', () => { ctx.resume(); align(); for (const track of tracks) track.play().catch(() => {}); }],
+    ['pause', () => { for (const track of tracks) track.pause(); }],
+    ['seeked', align],
+    ['ratechange', () => { for (const track of tracks) track.playbackRate = player.playbackRate; }],
+  ];
+  for (const [name, handler] of handlers) player.addEventListener(name, handler);
+  player.muted = true;
+  live = { ctx, voice, music, gain, handlers, timer: setInterval(() => { if (!player.paused) align(); }, 500) };
+  if (!player.paused) handlers[0][1]();
+}
+
+function setLiveGain() {
+  if (live && live.gain) live.gain.gain.setTargetAtTime(musicGain(), live.ctx.currentTime, 0.03);
+}
+
+async function applySound(button) {
+  button.disabled = true;
+  const label = button.textContent;
+  button.textContent = 'Mixing…';
+  try {
+    if (dirty) await save();
+    const result = await api('/api/edit/' + slug + '/remix', { method: 'POST' });
+    stopLive();
+    stems = result.stems;
+    $('player').src = '/api/video/' + slug + '?v=essay&t=' + Date.now();
+    say('sound applied in ' + (result.ms / 1000).toFixed(0) + 's');
+  } catch (error) {
+    say(error.message, true);
+  }
+  button.textContent = label;
+  button.disabled = false;
+  drawSound();
+}
+
+async function drawSound() {
+  if (stems === null && remixWhy === null) await loadStems();
+  const off = project.audio.cuesOff || [];
+  const counts = {};
+  for (const cue of project.audio.cues) counts[cue.kind] = (counts[cue.kind] || 0) + 1;
+  const trackChanged = stems !== null && project.audio.music !== stems.track && !(project.audio.music === 'none' && !stems.musicUrl);
+  $('tab-sound').innerHTML = [
+    '<span class="lbl">Music</span>',
+    '<select id="snd-music"><option value="none">None</option>' +
+      music.map((name) => '<option value="' + name + '"' + (project.audio.music === name ? ' selected' : '') + '>' + name + '</option>').join('') +
+      '</select>',
+    '<span class="lbl" id="snd-lufs-read">Music level (' + project.audio.musicLufs + ' LUFS)</span>',
+    '<input type="range" id="snd-lufs" min="-36" max="-10" step="1" value="' + project.audio.musicLufs + '" style="width:100%" />',
+    '<p class="hint">The narration sits at -14. Lower numbers are quieter music.</p>',
+    stems === null
+      ? (remixOk
+          ? '<div class="row" style="margin-top:6px"><button id="snd-prepare">Turn on live preview</button></div>' +
+            '<p class="hint">Mixes the sound once more (seconds, not a render) so the music can be heard live while you drag.</p>'
+          : '<p class="hint">' + (remixWhy || 'Render the video once to hear sound changes live.') + '</p>')
+      : '<label class="row" style="margin:8px 0"><input type="checkbox" id="snd-live"' + (live ? ' checked' : '') +
+        ' /> <span><b>Live preview</b> — play the video and drag the level; you hear it as you move it</span></label>' +
+        (trackChanged ? '<p class="hint">A different track is chosen: press Apply to hear it.</p>' : ''),
+    '<span class="lbl">Sound effects</span>',
+    CUE_KINDS.map(([kind, label]) =>
+      '<label class="row" style="margin:6px 0"><input type="checkbox" data-kind="' + kind + '"' +
+      (off.includes(kind) ? '' : ' checked') + ' /> <span>' + label +
+      ' <span style="color:var(--dim)">(' + (counts[kind] || 0) + ')</span></span></label>').join(''),
+    '<div class="row" style="margin-top:10px"><button id="snd-apply" class="primary"' + (remixOk ? '' : ' disabled') + '>Apply sound</button></div>',
+    '<p class="hint">' + (remixOk
+      ? 'Mixes the new sound onto the picture already rendered: seconds, not a render.'
+      : (remixWhy || 'Render the video once first.')) + '</p>',
+  ].join('');
+
+  $('snd-music').onchange = (event) => {
+    project.audio.music = event.target.value;
+    touch();
+    setLiveGain();
+    drawSound();
+  };
+  $('snd-lufs').oninput = (event) => {
+    project.audio.musicLufs = Number(event.target.value);
+    touch();
+    $('snd-lufs-read').textContent = 'Music level (' + project.audio.musicLufs + ' LUFS)';
+    setLiveGain();
+  };
+  if ($('snd-live')) {
+    $('snd-live').onchange = (event) => { if (event.target.checked) startLive(); else stopLive(); };
+  }
+  if ($('snd-prepare')) $('snd-prepare').onclick = () => applySound($('snd-prepare'));
+  $('snd-apply').onclick = () => applySound($('snd-apply'));
+  for (const box of $('tab-sound').querySelectorAll('input[data-kind]')) {
+    box.onchange = () => {
+      const kinds = new Set(project.audio.cuesOff || []);
+      if (box.checked) kinds.delete(box.dataset.kind); else kinds.add(box.dataset.kind);
+      project.audio.cuesOff = [...kinds];
+      touch();
+    };
+  }
+}
+
+/* ---------------------------------------------------------------- look -- */
+
+const PUNCH_STYLES = ['editorial', 'brutalist', 'whisper', 'highlight', 'outline'];
+const EFFECTS = ['none', 'gradient', 'clouds', 'fluid', 'aurora', 'static'];
+
+function drawLook() {
+  const scene = project.scene;
+  const punch = (scene.lines.find((line) => line.register === 'hot') || {}).captionStyle || 'highlight';
+  $('tab-look').innerHTML = [
+    '<span class="lbl">Punch caption style</span>',
+    '<select id="look-punch">' + PUNCH_STYLES.map((name) =>
+      '<option' + (name === punch ? ' selected' : '') + '>' + name + '</option>').join('') + '</select>',
+    '<span class="lbl">Caption size (' + Math.round(scene.captionScale * 100) + '%)</span>',
+    '<input type="range" id="look-scale" min="60" max="160" step="5" value="' + Math.round(scene.captionScale * 100) + '" style="width:100%" />',
+    '<span class="lbl">Grade</span>',
+    '<select id="look-grade"><option value="film"' + (scene.grade === 'film' ? ' selected' : '') + '>Film — full teal and amber</option>' +
+      '<option value="soft"' + (scene.grade === 'soft' ? ' selected' : '') + '>Soft — keeps the pictures own colour</option></select>',
+    '<span class="lbl">Effect over the pictures</span>',
+    '<select id="look-effect">' + EFFECTS.map((name) =>
+      '<option' + (name === (scene.effect || 'none') ? ' selected' : '') + '>' + name + '</option>').join('') + '</select>',
+    '<span class="lbl">Effect strength (' + Math.round(scene.effectStrength * 100) + '%)</span>',
+    '<input type="range" id="look-strength" min="0" max="100" step="5" value="' + Math.round(scene.effectStrength * 100) + '" style="width:100%" />',
+    '<p class="hint">Punch captions sit under the effect when one is on.</p>',
+  ].join('');
+
+  $('look-punch').onchange = (event) => {
+    for (const line of project.scene.lines) {
+      if (line.register === 'hot') line.captionStyle = event.target.value;
+    }
+    touch();
+  };
+  $('look-scale').oninput = (event) => { project.scene.captionScale = Number(event.target.value) / 100; touch(); };
+  $('look-grade').onchange = (event) => { project.scene.grade = event.target.value; touch(); };
+  $('look-effect').onchange = (event) => { project.scene.effect = event.target.value; touch(); };
+  $('look-strength').oninput = (event) => { project.scene.effectStrength = Number(event.target.value) / 100; touch(); };
+}
+
+/* -------------------------------------------------------- description -- */
+
+let description = null;
+
+async function drawDescription() {
+  const box = $('tab-description');
+  if (description === null) {
+    box.innerHTML = '<p class="hint">Writing it…</p>';
+    try {
+      description = (await api('/api/edit/' + slug + '/description')).text;
+    } catch (error) {
+      box.innerHTML = '';
+      say(error.message, true);
+      return;
+    }
+  }
+  box.innerHTML = [
+    '<p class="hint">Paste this under the video. Written from the argument, not the script.</p>',
+    '<textarea id="desc-text" style="min-height:320px">' +
+      description.replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]) +
+      '</textarea>',
+    '<div class="row" style="margin-top:8px"><button id="desc-copy">Copy</button></div>',
+  ].join('');
+  $('desc-copy').onclick = async () => {
+    await navigator.clipboard.writeText($('desc-text').value);
+    say('description copied');
+  };
+}
+
+/* ----------------------------------------------------------- thumbnail -- */
+
+/**
+ * Three thumbnails made from this video's own pictures. The chosen one goes
+ * up with the video. Changing the words is free; making them again from other
+ * pictures costs one call to the cheap text model.
+ */
+let thumbnails;
+const escapeHtml = (text) => String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+
+async function thumbnailCall(path, options, busyText) {
+  say(busyText);
+  try {
+    thumbnails = (await api(path, options)).thumbnails;
+    say('');
+  } catch (error) {
+    say(error.message, true);
+  }
+  drawThumbnails();
+}
+
+async function drawThumbnails() {
+  const box = $('tab-thumbnail');
+  if (thumbnails === undefined) {
+    box.innerHTML = '<p class="hint">Loading…</p>';
+    try {
+      thumbnails = (await api('/api/edit/' + slug + '/thumbnails')).thumbnails;
+    } catch (error) {
+      box.innerHTML = '';
+      say(error.message, true);
+      return;
+    }
+  }
+  if (thumbnails === null) {
+    box.innerHTML = [
+      '<p class="hint">Made from this video’s own pictures: the character lifted out and the words set behind them. About a tenth of a cent, and under two minutes.</p>',
+      '<div class="row" style="margin-top:8px"><button id="th-make" class="primary">Make thumbnails</button></div>',
+    ].join('');
+    $('th-make').onclick = () => thumbnailCall('/api/edit/' + slug + '/thumbnails', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: '{}' }, 'making thumbnails… (up to two minutes)');
+    return;
+  }
+  box.innerHTML = [
+    '<p class="hint">The chosen one goes up with the video. The small copy is how it looks on a phone.</p>',
+    ...thumbnails.options.map((option, i) => [
+      '<div class="item">',
+      '<img class="thumb" src="' + option.url + '" alt="Thumbnail ' + (i + 1) + '">',
+      '<div class="row" style="margin-top:6px"><img src="' + option.url + '" alt="" style="width:120px;border-radius:4px">',
+      '<span class="hint" style="margin:0">phone size</span></div>',
+      '<div class="row" style="margin-top:6px">',
+      '<input id="th-a-' + i + '" value="' + escapeHtml(option.lines[0] || '') + '" maxlength="16" style="flex:1;min-width:0">',
+      '<input id="th-b-' + i + '" value="' + escapeHtml(option.lines[1] || '') + '" maxlength="16" style="flex:1;min-width:0">',
+      '</div>',
+      '<div class="row" style="margin-top:6px">',
+      '<button id="th-words-' + i + '">Change words</button>',
+      i === thumbnails.chosen
+        ? '<span class="hint" style="margin:0">✓ used for upload</span>'
+        : '<button id="th-use-' + i + '" class="primary">Use this one</button>',
+      '</div></div>',
+    ].join('')),
+    '<div class="row" style="margin-top:8px"><button id="th-again">Make again from other pictures</button></div>',
+    '<p class="hint">Changing words is free. Making them again costs about a tenth of a cent.</p>',
+  ].join('');
+  thumbnails.options.forEach((_, i) => {
+    $('th-words-' + i).onclick = () => thumbnailCall(
+      '/api/edit/' + slug + '/thumbnails/' + i,
+      { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ lines: [$('th-a-' + i).value, $('th-b-' + i).value] }) },
+      'setting the words…',
+    );
+    const use = $('th-use-' + i);
+    if (use) use.onclick = () => thumbnailCall('/api/edit/' + slug + '/thumbnails/' + i + '/choose', { method: 'POST' }, 'choosing…');
+  });
+  $('th-again').onclick = () => thumbnailCall(
+    '/api/edit/' + slug + '/thumbnails',
+    { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ force: true }) },
+    'making thumbnails from other pictures… (up to two minutes)',
+  );
+}
+
+/* --------------------------------------------------------------- speed -- */
+
+/**
+ * The finished video, a little faster or slower, without rendering it again.
+ * A copy is made next to the original; the voice keeps its pitch. Any copy
+ * can be made the video that plays and uploads, and 1.00x puts it back.
+ */
+let speedTimer = null;
+
+async function speedCall(path, options) {
+  try {
+    const view = await api(path, options);
+    drawSpeed(view);
+  } catch (error) {
+    say(error.message, true);
+  }
+}
+
+async function drawSpeed(given) {
+  const box = $('tab-speed');
+  let view = given;
+  if (view === undefined) {
+    try {
+      view = await api('/api/edit/' + slug + '/speed');
+    } catch (error) {
+      say(error.message, true);
+      return;
+    }
+  }
+  const job = view.job;
+  const running = job && job.state === 'running';
+  const value = Number(($('speed-pick') && $('speed-pick').value) || 95);
+  box.innerHTML = [
+    '<p class="hint">Slow the finished video down, or speed it up, without rendering it again. ' +
+      'The picture and the sound move together and the voice keeps its own pitch. The original stays as it is.</p>',
+    '<span class="lbl">Speed <b id="speed-read">' + (value / 100).toFixed(2) + 'x</b></span>',
+    '<input id="speed-pick" type="range" min="' + Math.round(view.min * 100) + '" max="' + Math.round(view.max * 100) +
+      '" step="1" value="' + value + '" style="width:100%">',
+    '<p class="hint" id="speed-length"></p>',
+    '<div class="row" style="margin-top:8px"><button id="speed-go" class="primary"' + (running ? ' disabled' : '') + '>Export a copy</button></div>',
+    running
+      ? '<div class="bar" style="display:block;margin-top:10px"><i style="width:' + job.percent + '%"></i></div>' +
+        '<p class="hint">Making the ' + job.speed.toFixed(2) + 'x copy — ' + job.percent + '%</p>'
+      : job && job.state === 'failed'
+        ? '<p class="hint" style="color:var(--bad)">The copy failed: ' + escapeHtml(job.error || 'unknown') + '</p>'
+        : '',
+    view.copies.length === 0 ? '' : '<span class="lbl">Copies</span>',
+    ...view.copies.map((copy) => [
+      '<div class="item"><div class="top"><span class="name">' + copy.speed.toFixed(2) + 'x</span>',
+      '<span class="when">' + (copy.bytes / 1048576).toFixed(0) + ' MB</span></div>',
+      '<div class="row" style="margin-top:6px">',
+      '<button data-play="' + copy.url + '">Play</button>',
+      '<a href="' + copy.url + '" download="' + copy.name + '"><button>Download</button></a>',
+      Math.abs(view.main - copy.speed) < 0.005
+        ? '<span class="hint" style="margin:0">✓ this is the video now</span>'
+        : '<button data-use="' + copy.speed + '" class="primary">Use as the video</button>',
+      '</div></div>',
+    ].join('')),
+    view.copies.length > 0 && Math.abs(view.main - 1) >= 0.005
+      ? '<div class="row" style="margin-top:6px"><button data-use="1">Put the original back</button></div>'
+      : '',
+    '<p class="hint">“Use as the video” is what plays here and what gets uploaded. Rendering the video again ' +
+      'starts fresh at normal speed, and old copies are cleared.</p>',
+  ].join('');
+
+  const length = () => {
+    const speed = Number($('speed-pick').value) / 100;
+    $('speed-read').textContent = speed.toFixed(2) + 'x';
+    const seconds = Math.round(((project?.scene.durationMs || 0) / 1000) / speed);
+    $('speed-length').textContent = 'About ' + Math.floor(seconds / 60) + ':' + String(seconds % 60).padStart(2, '0') +
+      ' long' + (speed < 1 ? ', slower' : speed > 1 ? ', faster' : '') + '.';
+  };
+  $('speed-pick').oninput = length;
+  length();
+  $('speed-go').onclick = () => {
+    const speed = Number($('speed-pick').value) / 100;
+    void speedCall('/api/edit/' + slug + '/speed', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ speed }),
+    });
+  };
+  for (const button of box.querySelectorAll('[data-play]')) {
+    button.onclick = () => {
+      $('player').src = button.dataset.play;
+      $('player').play().catch(() => {});
+    };
+  }
+  for (const button of box.querySelectorAll('[data-use]')) {
+    button.onclick = async () => {
+      await speedCall('/api/edit/' + slug + '/speed/use', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ speed: Number(button.dataset.use) }),
+      });
+      $('player').src = '/api/video/' + slug + '?v=essay&t=' + Date.now();
+      say('that is the video now');
+    };
+  }
+
+  // While a copy is being made, look again every second and a half.
+  clearTimeout(speedTimer);
+  if (running) speedTimer = setTimeout(() => { if (!$('tab-speed').hidden) void drawSpeed(); }, 1500);
+}
+
+/* -------------------------------------------------------- saving, jobs -- */
+
+function touch() {
+  dirty = true;
+  say('unsaved changes');
+}
+
+async function save() {
+  if (project === null) return;
+  await api('/api/edit/' + slug, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scene: project.scene, audio: project.audio }),
+  });
+  dirty = false;
+  say('saved');
+}
+
+$('save').onclick = () => void save().catch((error) => say(error.message, true));
+
+async function previewFrame() {
+  try {
+    if (dirty) await save();
+    say('drawing one frame…');
+    const atMs = $('player').currentTime * 1000 || project.scene.plates[selected]?.startMs + 400 || 0;
+    const body = await api('/api/edit/' + slug + '/still', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ atMs }),
+    });
+    $('preview').src = body.url;
+    $('preview').style.display = 'block';
+    $('player').style.display = 'none';
+    say('this is the frame at ' + time(atMs) + ' with your edits — press play to go back to the video');
+  } catch (error) {
+    say(error.message, true);
+  }
+}
+$('preview-btn').onclick = () => void previewFrame();
+$('player').addEventListener('play', () => {
+  $('preview').style.display = 'none';
+  $('player').style.display = 'block';
+});
+
+$('render').onclick = async () => {
+  try {
+    if (dirty) await save();
+    await api('/api/edit/' + slug + '/render', { method: 'POST' });
+    watch();
+  } catch (error) {
+    say(error.message, true);
+  }
+};
+
+function watch() {
+  $('bar').style.display = 'block';
+  $('render').disabled = true;
+  clearInterval(polling);
+  polling = setInterval(async () => {
+    try {
+      const body = await api('/api/edit/' + slug + '/render');
+      const job = body.job;
+      if (job === null) return;
+      $('bar').firstElementChild.style.width = job.percent + '%';
+      const count = (n) => Number(n).toLocaleString();
+      const stalled = Date.now() - (job.updatedAt || 0) > 120000;
+      say(
+        job.stage === 'mix'
+          ? 'mixing the sound…'
+          : stalled
+            ? 'no new frames for two minutes — the render may have stopped; nothing is lost'
+            : 'rendering — ' + job.percent + '%' +
+              (job.total ? ' · frame ' + count(job.frames) + ' of ' + count(job.total) : '') +
+              (job.etaMs ? ' · about ' + Math.max(1, Math.round(job.etaMs / 60000)) + ' min left' : ''),
+        stalled,
+      );
+      if (job.stage === 'done' || job.stage === 'failed') {
+        clearInterval(polling);
+        $('render').disabled = false;
+        $('bar').style.display = 'none';
+        if (job.stage === 'failed') { say(job.error || 'the render failed', true); return; }
+        say('rendered — the video below is the new one');
+        // New picture, new stems: the live preview starts again from them.
+        stopLive();
+        stems = null;
+        remixWhy = null;
+        if (!$('tab-sound').hidden) void drawSound();
+        $('player').src = '/api/video/' + slug + '?v=essay&t=' + Date.now();
+        $('preview').style.display = 'none';
+        $('player').style.display = 'block';
+      }
+    } catch (error) {
+      clearInterval(polling);
+      $('render').disabled = false;
+      say(error.message, true);
+    }
+  }, 1500);
+}
+
+window.addEventListener('beforeunload', (event) => {
+  if (dirty) event.preventDefault();
+});
+
+load().catch((error) => say(error.message, true));
+</script>
+</body>
+</html>

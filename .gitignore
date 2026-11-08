@@ -1,0 +1,48 @@
+node_modules/
+.env
+.cache/
+work/
+out/
+
+assets/bg/**
+assets/music/**
+assets/sfx/**
+assets/fonts/**
+assets/own/**
+# Somebody's actual voice. This never belongs in a repository.
+assets/voice/**
+!assets/**/.gitkeep
+!assets/**/*.manifest.json
+
+# Fetched Commons images; re-downloaded on demand, credits live in work/<slug>/
+public/images/
+
+# Fetched stock footage; same deal, and far larger
+public/videos/
+
+# Raw sound-effect packs dropped in for auditioning. 29MB of somebody else's
+# samples does not belong in a repository that gets sold; the conditioned cues
+# the pipeline actually reads live in assets/sfx, which is ignored too.
+public/soundeffects/
+
+# Local vision models (fetched from Hugging Face on first use) and public-domain
+# book texts (fetched from Project Gutenberg). Both are re-downloadable.
+assets/models/
+assets/gutenberg/
+
+# Character portraits drawn for the books and series this machine has made
+# videos about. They are run output, not source -- and portraits of other
+# people's characters do not belong in a public repository.
+assets/characters/
+
+# Scratch scripts and local tool settings.
+*.tmp.ts
+.claude/
+
+# This computer's own data: keys saved from Settings (src/keys.ts) and the local
+# database of preferences and history (src/store/local.ts). Never commit these.
+.local/
+
+# Terms and privacy pages for the hosted service. They are the operator's, not
+# the open-source project's, and stay out of the public repository.
+legal/
