@@ -1,0 +1,8 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the stub fixture > keeps its lint findings 1`] = `
+{
+  "info": 0,
+  "warn": 15,
+}
+`;

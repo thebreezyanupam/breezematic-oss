@@ -1,0 +1,427 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`buildBeatSheet > matches the recorded plan 1`] = `
+{
+  "decisions": [
+    {
+      "beatId": "b01",
+      "reason": "word-punch (hook: no number), motion push, emphasis refused",
+    },
+    {
+      "beatId": "b02",
+      "reason": "reveal-mask (seeded choice), motion pull, emphasis every",
+    },
+    {
+      "beatId": "b03",
+      "reason": "quote-block (seeded choice), motion push, emphasis Netherlands",
+    },
+    {
+      "beatId": "b04",
+      "reason": "stat-slam (seeded choice), motion pan-l, emphasis original",
+    },
+    {
+      "beatId": "b05",
+      "reason": "reveal-mask (seeded choice), motion push, emphasis generation",
+    },
+    {
+      "beatId": "b06",
+      "reason": "countdown (seeded choice), motion pan-r, emphasis none",
+    },
+    {
+      "beatId": "b07",
+      "reason": "word-punch (seeded choice), motion pull, emphasis outside",
+    },
+    {
+      "beatId": "b08",
+      "reason": "line-stack (seeded choice), motion pan-l, emphasis best",
+    },
+  ],
+  "sfx": [
+    {
+      "atMs": 0,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 120,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 240,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 360,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 3,
+    },
+    {
+      "atMs": 800,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1,
+    },
+    {
+      "atMs": 2100,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 0,
+    },
+    {
+      "atMs": 2500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 2620,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 2740,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 2860,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 3,
+    },
+    {
+      "atMs": 3060,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1,
+    },
+    {
+      "atMs": 5100,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 0,
+    },
+    {
+      "atMs": 5500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 5620,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 5740,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 6000,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 0,
+    },
+    {
+      "atMs": 6600,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1,
+    },
+    {
+      "atMs": 7000,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 7020,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2,
+    },
+    {
+      "atMs": 7120,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 7240,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 7360,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 3,
+    },
+    {
+      "atMs": 8100,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 2,
+    },
+    {
+      "atMs": 8500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 8620,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 8740,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 8860,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 3,
+    },
+    {
+      "atMs": 9280,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1,
+    },
+    {
+      "atMs": 11100,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1,
+    },
+    {
+      "atMs": 11500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 11620,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 11740,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 13100,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 2,
+    },
+    {
+      "atMs": 13500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 13620,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 13740,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 13860,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 3,
+    },
+    {
+      "atMs": 14600,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 2,
+    },
+    {
+      "atMs": 15100,
+      "cue": "whoosh",
+      "gainDb": -15,
+      "variant": 1,
+    },
+    {
+      "atMs": 15500,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 0,
+    },
+    {
+      "atMs": 15620,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 1,
+    },
+    {
+      "atMs": 15740,
+      "cue": "click",
+      "gainDb": -18,
+      "variant": 2,
+    },
+    {
+      "atMs": 16180,
+      "cue": "impact",
+      "gainDb": -13,
+      "variant": 1,
+    },
+  ],
+  "summary": [
+    {
+      "emphasis": 2,
+      "id": "b01",
+      "lines": [
+        "The Dutch",
+        "refused",
+        "to dub",
+        "their television.",
+      ],
+      "motion": "push",
+      "ms": [
+        0,
+        2500,
+      ],
+      "template": "word-punch",
+    },
+    {
+      "emphasis": 1,
+      "id": "b02",
+      "lines": [
+        "Almost",
+        "every",
+        "country in Europe",
+        "overdubbed foreign shows.",
+      ],
+      "motion": "pull",
+      "ms": [
+        2500,
+        5500,
+      ],
+      "template": "reveal-mask",
+    },
+    {
+      "emphasis": 1,
+      "id": "b03",
+      "lines": [
+        "The",
+        "Netherlands",
+        "kept the",
+      ],
+      "motion": "push",
+      "ms": [
+        5500,
+        7000,
+      ],
+      "template": "quote-block",
+    },
+    {
+      "emphasis": 0,
+      "id": "b04",
+      "lines": [
+        "original",
+        "voices and",
+        "added",
+        "subtitles.",
+      ],
+      "motion": "pan-l",
+      "ms": [
+        7000,
+        8500,
+      ],
+      "template": "stat-slam",
+    },
+    {
+      "emphasis": 1,
+      "id": "b05",
+      "lines": [
+        "A",
+        "generation",
+        "grew up reading",
+        "English at speed.",
+      ],
+      "motion": "push",
+      "ms": [
+        8500,
+        11500,
+      ],
+      "template": "reveal-mask",
+    },
+    {
+      "emphasis": null,
+      "id": "b06",
+      "lines": [
+        "Today the",
+        "Dutch",
+        "speak it",
+      ],
+      "motion": "pan-r",
+      "ms": [
+        11500,
+        13500,
+      ],
+      "template": "countdown",
+    },
+    {
+      "emphasis": 3,
+      "id": "b07",
+      "lines": [
+        "better than",
+        "anyone",
+        "outside",
+        "the anglosphere.",
+      ],
+      "motion": "pull",
+      "ms": [
+        13500,
+        15500,
+      ],
+      "template": "word-punch",
+    },
+    {
+      "emphasis": 1,
+      "id": "b08",
+      "lines": [
+        "Their best",
+        "teacher was",
+        "a sitcom.",
+      ],
+      "motion": "pan-l",
+      "ms": [
+        15500,
+        18140,
+      ],
+      "template": "line-stack",
+    },
+  ],
+}
+`;
